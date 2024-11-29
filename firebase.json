@@ -1,0 +1,39 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "hands-talk-b9864",
+          "appId": "1:450406837124:android:05a8d28b2dbd965de14bd1",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "hands-talk-b9864",
+          "configurations": {
+            "android": "1:450406837124:android:05a8d28b2dbd965de14bd1",
+            "ios": "1:450406837124:ios:ef036434dfbe7176e14bd1",
+            "macos": "1:450406837124:ios:ef036434dfbe7176e14bd1",
+            "web": "1:450406837124:web:a8c593d8ffb1faf2e14bd1",
+            "windows": "1:450406837124:web:fcacb7bfc664fa21e14bd1"
+          }
+        }
+      }
+    }
+  },
+  "emulators": {
+    "apphosting": {
+      "port": 5002,
+      "rootDirectory": "./"
+    },
+
+    "ui": {
+      "enabled": true
+    },"apphosting": {
+      "port": 5002,
+      "startCommand": "flutter run -d chrome"
+    },
+    "singleProjectMode": true
+  }
+}
