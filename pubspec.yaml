@@ -31,14 +31,23 @@ dependencies:
   flutter:
     sdk: flutter
 
+  image_picker: ^0.8.5+3
+
+  flutter_lints: ^3.0.0
+
+
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.6
+  curved_navigation_bar: ^1.0.6
+#  curved_labeled_navigation_bar: ^2.0.5
+#  curved_navigation_bar_with_label: ^2.1.4
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -59,8 +68,11 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
+  assets:
+    - assets/icons/
+    - assets/Default_pfp.jpg
+    - assets/Background.png
+    - assets/logout.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
