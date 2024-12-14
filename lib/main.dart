@@ -5,12 +5,13 @@ import 'package:hands_talks/Authentication/otp_phone.dart';
 import 'package:hands_talks/Authentication/phoneNumber_Screen.dart';
 import 'package:hands_talks/Firebase_Utils/Firebase_Auth.dart';
 import 'package:hands_talks/home/homepage.dart';
-import 'package:hands_talks/message/chatpage.dart';
+//import 'package:hands_talks/message/chatpage.dart';
 import 'package:hands_talks/message/messagepage.dart';
 import 'package:hands_talks/profile/ProfilePage.dart';
 import 'package:hands_talks/transition/transition.dart';
 import 'package:hands_talks/translate/translatepage.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'Authentication/forgot_password/forgot_password_screen.dart';
 import 'firebase_options.dart';
 
 void main()async {
@@ -33,6 +34,7 @@ class MyApp extends StatelessWidget {
       routes: {
         RegisterScreen.routeName:(context) => RegisterScreen(),
         LoginScreen.routeName:(context) => LoginScreen(),
+        '/forgot_password_screen': (context) => ChangePasswordPage(),
         PhoneNumberScreen.routeName:(context) => PhoneNumberScreen(),
         // OTPVerification.routeName:(context) => OTPVerification(),
         Translation.routeName: (context) => Translation(),
@@ -40,7 +42,7 @@ class MyApp extends StatelessWidget {
         TranslatePage.routeName: (context) => TranslatePage(),
         MessagePage.routeName: (context) => MessagePage(),
         ProfilePage.routeName: (context) => ProfilePage(),
-        ChatPage.routeName: (context) => ChatPage(),
+        //ChatPage.routeName: (context) => ChatPage(),
 
       },
     );

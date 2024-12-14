@@ -96,6 +96,24 @@ class _LoginScreenState extends State<LoginScreen> {
                       },
                     ),
                   ),
+                  // Forgot Password Button (Styled)
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/forgot_password_screen');
+                      },
+                      child: Text(
+                        'Forgot password?',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          decoration: TextDecoration.none,
+                        ),
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () {
