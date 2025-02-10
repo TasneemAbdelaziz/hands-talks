@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:hands_talks/home/homepage.dart';
 import 'package:hands_talks/message/chatpage.dart';
 import 'package:hands_talks/message/messagespage.dart';
+import 'package:hands_talks/message/chatpage.dart';
+import 'package:hands_talks/message/messagepage.dart';
 import 'package:hands_talks/profile/ProfilePage.dart';
 import 'package:hands_talks/transition/transition.dart';
 import 'package:hands_talks/translate/translatepage.dart';
@@ -27,6 +29,12 @@ class MyApp extends StatelessWidget {
         ProfilePage.routeName: (context) => const ProfilePage(),
         ChatPage.routeName: (context) => const ChatPage()
 
+        Translation.routeName: (context) => Translation(),
+        HomePage.routeName: (context) => HomePage(),
+        TranslatePage.routeName: (context) => TranslatePage(),
+        MessagePage.routeName: (context) => MessagePage(),
+        ProfilePage.routeName: (context) => ProfilePage(),
+        ChatPage.routeName: (context) => ChatPage(),
 
       },
     );
