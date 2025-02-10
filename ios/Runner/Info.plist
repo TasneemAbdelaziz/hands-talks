@@ -28,6 +28,12 @@
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+        <string>hands talk app needs access to your photo library to pick images.</string>
+        <key>NSCameraUsageDescription</key>
+        <string>hands talk app needs access to your camera to capture new images.</string>
+        <key>NSMicrophoneUsageDescription</key>
+        <string>hands talk app needs access to your microphone to record videos.</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
