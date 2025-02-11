@@ -68,6 +68,7 @@ class _ChatPageState extends State<ChatPage> {
             height: 100,
             child: Row(
               children: [
+                Spacer(),
                 InkWell(
                   onTap: (){
                     showModalBottomSheet(
@@ -76,42 +77,36 @@ class _ChatPageState extends State<ChatPage> {
                         bottomsheet(),
                     );
                   },
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 5),
-                    child: Icon(Icons.add,size: 40,color: Theming.primary,),
-                  ),
+                  child: Icon(Icons.add,size: 40,color: Theming.primary,),
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 5),
-                  child: SizedBox(
-                      width: 250,
-                      child: TextField(
-                        decoration: InputDecoration(
-                          fillColor: Theming.secondary,
-                          filled: true,
-                          hintText: "Type a message",
-                          hintStyle: TextStyle(color: Theming.form),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
-                          ),
+                Spacer(),
+                SizedBox(
+                    width: 250,
+                    child: TextField(
+                      decoration: InputDecoration(
+                        fillColor: Theming.secondary,
+                        filled: true,
+                        hintText: "Type a message",
+                        hintStyle: TextStyle(color: Theming.form),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
                         ),
                       ),
                     ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 5),
-                  child: CircleAvatar(
-                    backgroundColor: Colors.transparent,
-                    radius: 25,
-                    child: Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: Theming.icons,
-                        ),
-                        child: IconButton(onPressed: (){}, icon: Icon(Icons.send,color: Theming.white,size: 25,))),
                   ),
+                Spacer(),
+                CircleAvatar(
+                  backgroundColor: Colors.transparent,
+                  radius: 25,
+                  child: Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: Theming.icons,
+                      ),
+                      child: IconButton(onPressed: (){}, icon: Icon(Icons.send,color: Theming.white,size: 25,))),
                 ),
+                Spacer(),
               ],
             ),
           ),
