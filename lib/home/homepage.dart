@@ -1,6 +1,4 @@
-import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:hands_talks/theming.dart';
 
 class HomePage extends StatelessWidget {
   static const String routeName = "HomePage";

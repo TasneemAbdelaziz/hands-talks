@@ -44,6 +44,12 @@ dependencies:
   google_sign_in: ^6.2.2
   quickalert: ^1.1.0
 #  google_sign_in: ^latest_version
+  image_picker: ^1.1.2
+  uuid: ^4.5.1
+  record: ^5.2.0
+  path_provider: ^2.1.5
+  audioplayers: ^6.1.0
+  path: ^1.9.0
 #  curved_labeled_navigation_bar: ^2.0.5
 #  curved_navigation_bar_with_label: ^2.1.4
 

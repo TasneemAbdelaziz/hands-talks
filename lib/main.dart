@@ -7,6 +7,9 @@ import 'package:hands_talks/Firebase_Utils/Firebase_Auth.dart';
 import 'package:hands_talks/home/homepage.dart';
 //import 'package:hands_talks/message/chatpage.dart';
 import 'package:hands_talks/message/messagepage.dart';
+import 'package:hands_talks/message/chatpage.dart';
+import 'package:hands_talks/message/messagespage.dart';
+import 'package:hands_talks/message/chatpage.dart';
 import 'package:hands_talks/profile/ProfilePage.dart';
 import 'package:hands_talks/transition/transition.dart';
 import 'package:hands_talks/translate/translatepage.dart';
@@ -43,6 +46,12 @@ class MyApp extends StatelessWidget {
         MessagePage.routeName: (context) => MessagePage(),
         ProfilePage.routeName: (context) => ProfilePage(),
         //ChatPage.routeName: (context) => ChatPage(),
+        Translation.routeName: (context) => const Translation(),
+        HomePage.routeName: (context) => const HomePage(),
+        TranslatePage.routeName: (context) => const TranslatePage(),
+        MessagesPage.routeName: (context) => const MessagesPage(),
+        ProfilePage.routeName: (context) => const ProfilePage(),
+        ChatPage.routeName: (context) => const ChatPage()
 
       },
     );

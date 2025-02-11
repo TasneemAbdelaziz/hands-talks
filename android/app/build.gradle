@@ -28,7 +28,7 @@ if (flutterVersionName == null) {
 android {
     namespace "com.example.hands_talks"
     compileSdk flutter.compileSdkVersion
-    ndkVersion flutter.ndkVersion
+    ndkVersion "25.1.8937393"
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -53,6 +53,11 @@ android {
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
+//    android {
+//           defaultConfig {
+//                 minSdkVersion 23
+//               }
+//         }
 
     buildTypes {
         release {
