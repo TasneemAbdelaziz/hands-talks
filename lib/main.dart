@@ -27,17 +27,8 @@ class MyApp extends StatelessWidget {
 
 
       },
-      debugShowCheckedModeBanner: false,
-      initialRoute:Translation.routeName,
-      routes: {
-        Translation.routeName: (context) => Translation(),
-        HomePage.routeName: (context) => HomePage(),
-        TranslatePage.routeName: (context) => HomePage(),
-        MessagePage.routeName: (context) => HomePage(),
-        ProfilePage.routeName: (context) => ProfilePage(),
 
 
-      },
     );
   }
 }

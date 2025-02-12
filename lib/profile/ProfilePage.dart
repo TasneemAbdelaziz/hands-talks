@@ -1,3 +1,16 @@
+import 'package:flutter/material.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
+import '../theming.dart';
+import 'EditInformation.dart';
+import 'PrivacyPage.dart';
+import 'CustomAlertDialog.dart';
+import 'HelpSupportPage.dart';
+import 'contact_us.dart';
+
+class ProfilePage extends StatefulWidget {
+  static const String routeName = "ProfilePage";
+
   const ProfilePage({super.key});
 
   @override
@@ -50,7 +63,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFFEBF0F0),
+        backgroundColor: const Color(0xFFEBF0F0),
         elevation: 0,
         title: Text(
           'Profile',
@@ -120,9 +133,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     _buildSettingsTile(
                       icon: Icons.security,
                       title: 'Security',
-                      onTap: () {
-
-                      },
+                      onTap: () {},
                     ),
                     _buildSettingsTile(
                       icon: Icons.color_lens,
@@ -138,10 +149,11 @@ class _ProfilePageState extends State<ProfilePage> {
                       title: 'Help & Support',
                       onTap: () {
                         Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                            builder: (context) => const HelpSupportPage(),),);
-
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const HelpSupportPage(),
+                          ),
+                        );
                       },
                     ),
                     _buildSettingsTile(
@@ -151,19 +163,20 @@ class _ProfilePageState extends State<ProfilePage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => ContactUsPage(), // Navigate to Contact Us Page
+                            builder: (context) => const ContactUsPage(),
                           ),
                         );
                       },
                     ),
-
                     _buildSettingsTile(
                       icon: Icons.privacy_tip,
                       title: 'Privacy policy',
                       onTap: () {
                         Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => PrivacyPage(),)
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PrivacyPage(),
+                          ),
                         );
                       },
                     ),
