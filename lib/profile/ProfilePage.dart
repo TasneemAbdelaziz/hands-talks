@@ -1,17 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
- import 'EditInformation.dart';
-import 'package:hands_talks/theming.dart';
-import 'dart:io';
-import 'package:hands_talks/profile/CustomAlertDialog.dart';
-import 'package:hands_talks/profile/contact_us.dart';
-import 'package:hands_talks/profile/HelpSupportPage.dart';
-import 'package:hands_talks/profile/PrivacyPage.dart';
-
-
-class ProfilePage extends StatefulWidget {
-  static const String routeName = "ProfileScreen";
-
   const ProfilePage({super.key});
 
   @override

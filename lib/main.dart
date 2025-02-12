@@ -23,6 +23,17 @@ class MyApp extends StatelessWidget {
         HomePage.routeName: (context) => HomePage(),
         TranslatePage.routeName: (context) => HomePage(),
         MessagePage.routeName: (context) => HomePage(),
+        ProfilePage.routeName: (context) => HomePage(),
+
+
+      },
+      debugShowCheckedModeBanner: false,
+      initialRoute:Translation.routeName,
+      routes: {
+        Translation.routeName: (context) => Translation(),
+        HomePage.routeName: (context) => HomePage(),
+        TranslatePage.routeName: (context) => HomePage(),
+        MessagePage.routeName: (context) => HomePage(),
         ProfilePage.routeName: (context) => ProfilePage(),
 
 
