@@ -54,6 +54,8 @@ class MyApp extends StatelessWidget {
         ChatPage.routeName: (context) => const ChatPage()
 
       },
+
+
     );
   }
 }

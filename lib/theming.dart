@@ -6,7 +6,7 @@ class Theming{
   static Color secondary = const Color(0xffd9d9d9);
 
   // used in filed like email ,password,text inside gray buttons..
-  static Color form = const Color(0xff858C94);
+  static Color form = const Color(0xFFF3F8FF);
 
   // snakBar when filled and stroke when no filled
   static Color snackBar = const Color(0xff808187);
