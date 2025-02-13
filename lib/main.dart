@@ -6,7 +6,7 @@ import 'package:hands_talks/Authentication/phoneNumber_Screen.dart';
 import 'package:hands_talks/Firebase_Utils/Firebase_Auth.dart';
 import 'package:hands_talks/home/homepage.dart';
 //import 'package:hands_talks/message/chatpage.dart';
-import 'package:hands_talks/message/messagepage.dart';
+// import 'package:hands_talks/message/messagepage.dart';
 import 'package:hands_talks/message/chatpage.dart';
 import 'package:hands_talks/message/messagespage.dart';
 import 'package:hands_talks/message/chatpage.dart';
@@ -43,14 +43,14 @@ class MyApp extends StatelessWidget {
         Translation.routeName: (context) => Translation(),
         HomePage.routeName: (context) => HomePage(),
         TranslatePage.routeName: (context) => TranslatePage(),
-        MessagePage.routeName: (context) => MessagePage(),
-        ProfilePage.routeName: (context) => ProfilePage(),
-        //ChatPage.routeName: (context) => ChatPage(),
-        Translation.routeName: (context) => const Translation(),
-        HomePage.routeName: (context) => const HomePage(),
-        TranslatePage.routeName: (context) => const TranslatePage(),
-        MessagesPage.routeName: (context) => const MessagesPage(),
-        ProfilePage.routeName: (context) => const ProfilePage(),
+        // MessagePage.routeName: (context) => MessagePage(),
+        // ProfilePage.routeName: (context) => ProfilePage(),
+        // //ChatPage.routeName: (context) => ChatPage(),
+        // Translation.routeName: (context) => const Translation(),
+        // HomePage.routeName: (context) => const HomePage(),
+        // TranslatePage.routeName: (context) => const TranslatePage(),
+        // MessagesPage.routeName: (context) => const MessagesPage(),
+        // ProfilePage.routeName: (context) => const ProfilePage(),
         ChatPage.routeName: (context) => const ChatPage()
 
       },

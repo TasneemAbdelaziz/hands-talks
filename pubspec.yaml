@@ -84,10 +84,10 @@ flutter:
   assets:
   - assets/icons/
   - assets/images/
-    - assets/icons/
-    - assets/Default_pfp.jpg
-    - assets/Background.png
-    - assets/logout.png
+  - assets/icons/
+  - assets/Default_pfp.jpg
+  - assets/Background.png
+  - assets/logout.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
