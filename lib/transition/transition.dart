@@ -65,10 +65,10 @@ class _TranslationState extends State<Translation> {
 }
 
   List<Widget> tabs = [
-    const HomePage(),
-    const TranslatePage(),
-    const MessagesPage(),
-    const ProfilePage(),
+     HomePage(),
+     TranslatePage(),
+     MessagesPage(),
+     ProfilePage(),
   ];
 
 

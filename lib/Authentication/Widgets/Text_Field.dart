@@ -76,13 +76,13 @@ class _CustomTextFieldState extends State<CustomTextField> {
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
             borderSide: BorderSide(
-              color: Theming.form,
+              color: Theming.searchbar,
             ),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
             borderSide: BorderSide(
-              color: Theming.form,
+              color: Theming.searchbar,
             ),
           )),
     );

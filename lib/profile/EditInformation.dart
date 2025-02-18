@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:hands_talks/Model/myUser.dart';
 import 'package:hands_talks/theming.dart';
+import 'package:provider/provider.dart';
+
+import '../Firebase_Utils/Firebase_Auth.dart';
 
 class EditInformationPage extends StatefulWidget {
   static const String routeName = "EditInformationScreen";
@@ -12,24 +16,19 @@ class EditInformationPage extends StatefulWidget {
 
 class _EditInformationPageState extends State<EditInformationPage> {
   // Controllers for text fields
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
+   TextEditingController _nameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _phoneController = TextEditingController();
-  final TextEditingController _addressController = TextEditingController();
   String _selectedCountry = "Egypt"; // Default country
 
-  final List<String> _countries = ["Egypt", "USA", "Canada", "Bahrain"];
-
+  final List<String> _countries = ["Egypt"];
+// late var args;
+   late var authProvider=Provider.of<FirebaseAuthService>(context, listen: false);
   @override
   void initState() {
+
     super.initState();
     // Pre-fill fields with example data
-    _nameController.text = "Muhammed";
-    _emailController.text = "muhammed22@gmail.com";
-    _passwordController.text = "*******";
-    _phoneController.text = "1234567890";
-    _addressController.text = "45 Alex, Smouha";
+    _nameController.text = authProvider.myUser?.name??"";
   }
 
   @override
@@ -60,8 +59,14 @@ class _EditInformationPageState extends State<EditInformationPage> {
             const SizedBox(height: 20),
 
             // Full Name Field
-            TextField(
+            TextFormField(
               controller: _nameController,
+              onChanged: (value) {
+                _nameController.text=value;
+                setState(() {
+
+                });
+              },
               decoration: InputDecoration(
                 labelText: "Full name",
                 labelStyle: TextStyle(color: Theming.primary),
@@ -73,8 +78,9 @@ class _EditInformationPageState extends State<EditInformationPage> {
             const SizedBox(height: 16),
 
             // Email Field
-            TextField(
-              controller: _emailController,
+            TextFormField(
+              controller:TextEditingController(text:authProvider.myUser?.email??""),
+              readOnly: true,
               decoration: InputDecoration(
                 labelText: "Email",
                 labelStyle: TextStyle(color: Theming.primary),
@@ -87,7 +93,7 @@ class _EditInformationPageState extends State<EditInformationPage> {
             const SizedBox(height: 16),
 
             // Password Field
-            TextField(
+            TextFormField(
               controller: _passwordController,
               decoration: InputDecoration(
                 labelText: "Password",
@@ -100,8 +106,9 @@ class _EditInformationPageState extends State<EditInformationPage> {
             ),
             const SizedBox(height: 16),
 
-            TextField(
-              controller: _phoneController,
+            TextFormField(
+              controller: TextEditingController(text:authProvider.myUser!.phoneNumber!.substring(1)),
+              readOnly: true,
               decoration: InputDecoration(
                 labelText: "Phone number",
                 labelStyle: TextStyle(color: Theming.primary),
@@ -120,24 +127,9 @@ class _EditInformationPageState extends State<EditInformationPage> {
                 fillColor: Theming.form,
                 border: OutlineInputBorder(),
               ),
-              keyboardType: TextInputType.phone,
             ),
 
             const SizedBox(height: 16),
-
-            // Address Field
-            TextField(
-              controller: _addressController,
-              decoration: InputDecoration(
-                labelText: "Address",
-                labelStyle: TextStyle(color: Theming.primary),
-                filled: true,
-                fillColor: Theming.form,
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 16),
-
             // Country Dropdown
             DropdownButtonFormField<String>(
               value: _selectedCountry,
@@ -173,6 +165,9 @@ class _EditInformationPageState extends State<EditInformationPage> {
                   ),
                 ),
                 onPressed: () {
+                    authProvider.updateUserProfileInfo(newName: _nameController.text);
+                    setState(() {
+                    });
                   // Handle saving the updated information
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(

@@ -1,6 +1,12 @@
+
 import 'package:flutter/material.dart';
+import 'package:hands_talks/Model/myUser.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+
+import '../Authentication/Login/Login_Screen.dart';
+import '../Firebase_Utils/Firebase_Auth.dart';
 import '../theming.dart';
 import 'EditInformation.dart';
 import 'PrivacyPage.dart';
@@ -10,8 +16,6 @@ import 'contact_us.dart';
 
 class ProfilePage extends StatefulWidget {
   static const String routeName = "ProfilePage";
-
-  const ProfilePage({super.key});
 
   @override
   _ProfilePageState createState() => _ProfilePageState();
@@ -46,7 +50,9 @@ class _ProfilePageState extends State<ProfilePage> {
           negativeButtonText: 'Cancel',
           onPositivePressed: () {
             Navigator.of(dialogContext).pop(); // Close the dialog
-            Navigator.pushReplacementNamed(context, '/'); // Example of logout functionality
+            FirebaseAuthService.signOut(context);
+            Navigator.pushReplacementNamed(
+                context, LoginScreen.routeName); // Example of logout functionality
           },
           onNegativePressed: () {
             Navigator.of(dialogContext).pop(); // Close the dialog
@@ -58,9 +64,12 @@ class _ProfilePageState extends State<ProfilePage> {
       },
     );
   }
+  // late MyUser myUser;
 
   @override
   Widget build(BuildContext context) {
+    var authProvider=Provider.of<FirebaseAuthService>(context);
+   authProvider.getUserProfileInfo();
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFFEBF0F0),
@@ -76,7 +85,8 @@ class _ProfilePageState extends State<ProfilePage> {
           IconButton(
             icon: Icon(Icons.logout, size: 30, color: Theming.primary),
             onPressed: () {
-              _showLogoutConfirmation(context); // Show logout confirmation when pressed
+              _showLogoutConfirmation(
+                  context); // Show logout confirmation when pressed
             },
           ),
         ],
@@ -101,12 +111,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     _buildSettingsTile(
                       icon: Icons.edit,
                       title: 'Edit profile information',
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const EditInformationPage(),
-                        ),
-                      ),
+                      onTap: () => Navigator.pushNamed(context, EditInformationPage.routeName),
                     ),
                     _buildSettingsTile(
                       icon: Icons.notifications,
@@ -189,7 +194,6 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
     );
   }
-
   Widget _buildProfileHeader() {
     return Center(
       child: Column(
@@ -205,15 +209,22 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           ),
           const SizedBox(height: 16),
-          const Text(
-            'Muhammed',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const Text('muhammed22@gmail.com'),
-          const Text('+01234567890'),
+          Consumer<FirebaseAuthService>(builder: (context, authProvider, child) {
+            return authProvider.myUser==null?Center(child:CircularProgressIndicator(),):Column(
+              children: [
+                Text(
+                  '${authProvider.myUser?.name ?? ""}',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                // Text('${authProvider.myUser?.email ?? ""}'),
+                Text('${authProvider.myUser?.phoneNumber ?? ""}'),
+              ],
+            );
+          },)
+
         ],
       ),
     );

@@ -10,19 +10,29 @@ import 'package:hands_talks/home/homepage.dart';
 import 'package:hands_talks/message/chatpage.dart';
 import 'package:hands_talks/message/messagespage.dart';
 import 'package:hands_talks/message/chatpage.dart';
+import 'package:hands_talks/profile/EditInformation.dart';
 import 'package:hands_talks/profile/ProfilePage.dart';
 import 'package:hands_talks/transition/transition.dart';
 import 'package:hands_talks/translate/translatepage.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart';
 import 'Authentication/forgot_password/forgot_password_screen.dart';
 import 'firebase_options.dart';
 
 void main()async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
+      options: DefaultFirebaseOptions.currentPlatform,);
+  runApp(
+    /// Providers are above [MyApp] instead of inside it, so that tests
+    /// can use [MyApp] while mocking the providers
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) =>FirebaseAuthService() ),
+      ],
+      child: const MyApp(),
+    ),
   );
-  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -43,14 +53,8 @@ class MyApp extends StatelessWidget {
         Translation.routeName: (context) => Translation(),
         HomePage.routeName: (context) => HomePage(),
         TranslatePage.routeName: (context) => TranslatePage(),
-        // MessagePage.routeName: (context) => MessagePage(),
-        // ProfilePage.routeName: (context) => ProfilePage(),
-        // //ChatPage.routeName: (context) => ChatPage(),
-        // Translation.routeName: (context) => const Translation(),
-        // HomePage.routeName: (context) => const HomePage(),
-        // TranslatePage.routeName: (context) => const TranslatePage(),
-        // MessagesPage.routeName: (context) => const MessagesPage(),
-        // ProfilePage.routeName: (context) => const ProfilePage(),
+       ProfilePage.routeName:(context)=> ProfilePage(),
+        EditInformationPage.routeName: (context) => EditInformationPage(),
         ChatPage.routeName: (context) => const ChatPage()
 
       },

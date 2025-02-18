@@ -9,10 +9,10 @@ class MyUser{
     phoneNumber: json['phoneNumber'] as String,
   );
 
-  final String? uId;
-  final String? name;
-  final String? email;
-  final String? phoneNumber;
+   String? uId;
+   String? name;
+   String? email;
+   String? phoneNumber;
 
   Map<String, Object?> toJson() {
     return {
