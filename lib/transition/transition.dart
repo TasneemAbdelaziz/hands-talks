@@ -24,6 +24,7 @@ class _TranslationState extends State<Translation> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       body: tabs[selectedIndex],
 
 

@@ -55,7 +55,16 @@ dependencies:
   path_provider: ^2.1.5
   audioplayers: ^6.1.0
   path: ^1.9.0
-  provider: ^6.1.2
+  provider: ^6.0.0
+  flutter_screenutil: ^5.9.3
+  audio_waveforms: ^1.2.0
+  speech_to_text: ^7.0.0
+#  flutter_sound: ^9.23.1
+  permission_handler: ^11.4.0
+  flutter_svg: ^2.0.17
+  highlight_text: ^1.8.0
+  avatar_glow: ^2.0.0
+#  livespeechtotext: ^1.0.9
 #  curved_labeled_navigation_bar: ^2.0.5
 #  curved_navigation_bar_with_label: ^2.1.4
 

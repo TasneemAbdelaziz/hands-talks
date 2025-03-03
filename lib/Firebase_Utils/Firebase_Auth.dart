@@ -140,7 +140,6 @@ class FirebaseAuthService extends ChangeNotifier{
       text: 'Please wait...',
     );
     try {
-      Navigator.pop(context);
       final credential = await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: emailAddress, password: password);
       QuickAlert.show(
