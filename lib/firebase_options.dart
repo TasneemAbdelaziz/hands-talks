@@ -41,48 +41,51 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyCUcELA0pyOWZXS29AP1z8MpD5zBDuovPk',
-    appId: '1:450406837124:web:a8c593d8ffb1faf2e14bd1',
-    messagingSenderId: '450406837124',
-    projectId: 'hands-talk-b9864',
-    authDomain: 'hands-talk-b9864.firebaseapp.com',
-    storageBucket: 'hands-talk-b9864.firebasestorage.app',
-    measurementId: 'G-5HLQPWJBXR',
+    apiKey: 'AIzaSyB_MbAqXBHIyhw1miU0-VM0iObkkxGhFHQ',
+    appId: '1:9803608938:web:307099d10e74e76777eb13',
+    messagingSenderId: '9803608938',
+    projectId: 'hands-talks-e581c',
+    authDomain: 'hands-talks-e581c.firebaseapp.com',
+    storageBucket: 'hands-talks-e581c.firebasestorage.app',
+    measurementId: 'G-XJJPFKZYNJ',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBCHtT0SCST_Ui65eI7umSCtV4ky2JhMqs',
-    appId: '1:450406837124:android:05a8d28b2dbd965de14bd1',
-    messagingSenderId: '450406837124',
-    projectId: 'hands-talk-b9864',
-    storageBucket: 'hands-talk-b9864.firebasestorage.app',
+    apiKey: 'AIzaSyBBMPLkopCwYjRf-preAgj5_OH4OZiiaJw',
+    appId: '1:9803608938:android:8afc88497ea6865977eb13',
+    messagingSenderId: '9803608938',
+    projectId: 'hands-talks-e581c',
+    storageBucket: 'hands-talks-e581c.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCstEjabkraEsGOZT6usJf6wQGbnUEDg0U',
-    appId: '1:450406837124:ios:ef036434dfbe7176e14bd1',
-    messagingSenderId: '450406837124',
-    projectId: 'hands-talk-b9864',
-    storageBucket: 'hands-talk-b9864.firebasestorage.app',
+    apiKey: 'AIzaSyA1W4i5_6JaodlKJ9-RuxCBrwrHbdesDXM',
+    appId: '1:9803608938:ios:260f5e354648295977eb13',
+    messagingSenderId: '9803608938',
+    projectId: 'hands-talks-e581c',
+    storageBucket: 'hands-talks-e581c.firebasestorage.app',
+    iosClientId: '9803608938-ksj7q0crunj1dhaonsosdfq5h9t3m18o.apps.googleusercontent.com',
     iosBundleId: 'com.example.handsTalks',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyCstEjabkraEsGOZT6usJf6wQGbnUEDg0U',
-    appId: '1:450406837124:ios:ef036434dfbe7176e14bd1',
-    messagingSenderId: '450406837124',
-    projectId: 'hands-talk-b9864',
-    storageBucket: 'hands-talk-b9864.firebasestorage.app',
+    apiKey: 'AIzaSyA1W4i5_6JaodlKJ9-RuxCBrwrHbdesDXM',
+    appId: '1:9803608938:ios:260f5e354648295977eb13',
+    messagingSenderId: '9803608938',
+    projectId: 'hands-talks-e581c',
+    storageBucket: 'hands-talks-e581c.firebasestorage.app',
+    iosClientId: '9803608938-ksj7q0crunj1dhaonsosdfq5h9t3m18o.apps.googleusercontent.com',
     iosBundleId: 'com.example.handsTalks',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyCUcELA0pyOWZXS29AP1z8MpD5zBDuovPk',
-    appId: '1:450406837124:web:fcacb7bfc664fa21e14bd1',
-    messagingSenderId: '450406837124',
-    projectId: 'hands-talk-b9864',
-    authDomain: 'hands-talk-b9864.firebaseapp.com',
-    storageBucket: 'hands-talk-b9864.firebasestorage.app',
-    measurementId: 'G-WX14TDYCF6',
+    apiKey: 'AIzaSyB_MbAqXBHIyhw1miU0-VM0iObkkxGhFHQ',
+    appId: '1:9803608938:web:627ceffca48c4a9c77eb13',
+    messagingSenderId: '9803608938',
+    projectId: 'hands-talks-e581c',
+    authDomain: 'hands-talks-e581c.firebaseapp.com',
+    storageBucket: 'hands-talks-e581c.firebasestorage.app',
+    measurementId: 'G-Q25MQZVJJF',
   );
+
 }

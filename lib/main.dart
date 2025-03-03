@@ -21,6 +21,7 @@ void main()async {
   WidgetsFlutterBinding.ensureInitialized();
   // SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
   await Firebase.initializeApp(
+
       options: DefaultFirebaseOptions.currentPlatform,);
   runApp(
     /// Providers are above [MyApp] instead of inside it, so that tests
@@ -46,7 +47,7 @@ class MyApp extends StatelessWidget {
       minTextAdapt: true,
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        initialRoute:SpeechProcessing.routeName,
+        initialRoute: RegisterScreen.routeName,
         routes: {
           RegisterScreen.routeName:(context) => RegisterScreen(),
           LoginScreen.routeName:(context) => LoginScreen(),
