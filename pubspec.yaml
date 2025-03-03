@@ -55,6 +55,15 @@ dependencies:
   path_provider: ^2.1.5
   audioplayers: ^6.1.0
   path: ^1.9.0
+  intl: ^0.20.2
+  permission_handler: ^11.4.0
+#  contacts_service: ^0.6.3
+  url_launcher: ^6.3.1
+  flutter_contacts: ^1.1.9+2
+  provider: ^6.1.2
+  shimmer: ^3.0.0
+  firebase_messaging: ^15.2.4
+  flutter_local_notifications: ^18.0.1
 #  curved_labeled_navigation_bar: ^2.0.5
 #  curved_navigation_bar_with_label: ^2.1.4
 

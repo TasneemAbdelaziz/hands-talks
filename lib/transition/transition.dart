@@ -2,7 +2,7 @@ import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hands_talks/home/homepage.dart';
-import 'package:hands_talks/message/messagespage.dart';
+import 'package:hands_talks/message/messages_page.dart';
 import 'package:hands_talks/profile/ProfilePage.dart';
 import 'package:hands_talks/theming.dart';
 import 'package:hands_talks/translate/translatepage.dart';

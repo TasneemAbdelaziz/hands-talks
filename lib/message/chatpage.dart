@@ -1,23 +1,39 @@
 import 'dart:io';
-// import 'dart:math';
-// import 'package:flutter/cupertino.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hands_talks/message/iconcreation.dart';
+import 'package:hands_talks/message/mesage_line.dart';
 import 'package:hands_talks/theming.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 import 'package:uuid/uuid.dart';
+import 'package:hands_talks/Firebase_Utils/firestore_messages.dart';
+
 
 class ChatPage extends StatefulWidget {
-  const ChatPage({super.key});
+  String recipentPhone;
+  String recipentName;
+  String currentUserPhone;
+
+   ChatPage({super.key,required this.currentUserPhone,required this.recipentPhone,required this.recipentName});
   static const String routeName = "chatPage";
 
   @override
   State<ChatPage> createState() => _ChatPageState();
 }
 
+
+
 class _ChatPageState extends State<ChatPage> {
+  User? user = FirebaseAuth.instance.currentUser;
+  final TextEditingController _messageController = TextEditingController();
+  final FirebaseAuth auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  String? chatId;
+
+
   File? img;
   final picker = ImagePicker();
   Future getImage() async {
@@ -32,10 +48,129 @@ class _ChatPageState extends State<ChatPage> {
     });
   }
 
-
   final record = AudioRecorder();
   String path='';
   String url='';
+
+
+
+
+    void initState() {
+    super.initState();
+
+    print("9999999999999999999999999999999999999");
+    print(widget.currentUserPhone);
+    print("9999999999999999999999999999999999999");
+
+
+    fetchChatId();
+  }
+  Future<void> fetchChatId() async {
+    String id = await FirestoreMessages.GetOrCreateChatCollection(
+        user1Phone:widget.currentUserPhone,
+       user2Phone: widget.recipentPhone
+    );
+    print("-==04-053-0353-450345e0=350=353=-503503-5035");
+    print(widget.currentUserPhone);
+
+    setState(() {
+      chatId = id;
+      
+    });
+    markMessagesAsSeen();
+  }
+
+
+  void markMessagesAsSeen() {
+    FirebaseFirestore.instance
+        .collection('chats')
+        .doc(chatId)
+        .collection('messages')
+        .where('receiver', isEqualTo: widget.currentUserPhone)
+        .where('isSeenBy', isEqualTo: false) // Fetch only unseen messages
+        .get()
+        .then((snapshot) {
+      for (var doc in snapshot.docs) {
+        doc.reference.update({'isSeenBy': true});
+      }
+    });
+  }
+
+
+  // Edit Message
+  void _editMessage(BuildContext context, String messageId, String currentText) {
+    TextEditingController editController = TextEditingController(text: currentText);
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true, // Allows the bottom sheet to expand fully
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+          child: Container(
+            padding: EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  maxLines: 4,
+                  minLines: 1,
+                  controller: editController,
+                  decoration: InputDecoration(
+                    fillColor: Theming.secondary,
+                    filled: true,
+                    hintText: "Edit message...",
+                    hintStyle: TextStyle(color: Theming.snackBar),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                ),
+                SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context); // Close bottom sheet
+                      },
+                      child: Text("Cancel"),
+                    ),
+                    SizedBox(width: 10),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theming.primary,
+                      ),
+                      onPressed: () {
+                        String updatedMessage = editController.text.trim();
+                        if (updatedMessage.isNotEmpty) {
+                          print("===============================================");
+                          print("Updated Message: $updatedMessage");
+                          FirestoreMessages.editMessage(chatId!, messageId, editController.text.trim());
+
+                          Navigator.pop(context); // Close bottom sheet after saving
+                        }
+                      },
+                      child: Text("Save",style: TextStyle(color: Colors.white),),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+
+
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,12 +192,106 @@ class _ChatPageState extends State<ChatPage> {
                     leading:const CircleAvatar(backgroundColor: Colors.transparent,child: Icon(Icons.account_circle_rounded,size: 50,),
                     ),
                   // ),
-                  title: Text("Ali Ahmed",style: Theming.lightTheme.textTheme.titleLarge!.copyWith(fontSize: 17),),
-                  subtitle: Text("+01114481034",style: Theming.lightTheme.textTheme.bodySmall,),
+                  title: Text(widget.recipentName,style: Theming.lightTheme.textTheme.titleLarge!.copyWith(fontSize: 17),),
+                  subtitle: Text(widget.recipentPhone,style: Theming.lightTheme.textTheme.bodySmall,),
                   trailing:Image.asset("assets/icons/Videocamera.png",),
                   ),
             ),
-          const Spacer(),
+          // const Spacer(),
+          // Streaming runtime show message
+          Expanded(
+            child: StreamBuilder<QuerySnapshot>(
+
+              stream: _firestore
+                  .collection('chats')
+                  .doc(chatId)
+                  .collection('messages')
+                  .orderBy('timestamp', descending: true)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                var messages = snapshot.data!.docs;
+                print("Number of messages: ${messages.length}");
+                return ListView.builder(
+                  reverse: true,
+                  itemCount: messages.length,
+                  itemBuilder: (context, index) {
+                    var message = messages[index];
+                    var messageText = message['text'];
+                    var messageSender = message['sender'];
+                    var messageReciver = message['receiver'];
+                    var messageId = message.id;
+                    var isEdited = message['isEdited'];
+                    var isSeenBy = message['isSeenBy'];
+                    // var messageDate = (message['timestamp'] as Timestamp).toDate();
+                    bool isMe = messageSender == widget.currentUserPhone;
+
+                    var messageDate;
+                    if (message['timestamp'] != null) {
+                      messageDate = (message['timestamp'] as Timestamp).toDate();
+                    } else {
+                      messageDate = DateTime.now(); // Fallback to current time if null
+                    }
+                    return GestureDetector(
+                      onLongPress: (){
+                        showModalBottomSheet(
+                          isScrollControlled: true,
+                          context: context,
+                          builder:(context){
+                            if(isMe){
+                          return
+                            Wrap(
+                            children: [
+                              ListTile(
+                                title: Text("Edit"),
+                                leading: Icon(Icons.edit),
+                                onTap: (){
+                                  Navigator.pop(context);
+                                  _editMessage(context, messageId, messageText);
+                                  print("-00=-0=0=9430990395039093093093-093-093090395-993-959");
+                                  // EditMessage(message: messageText,);
+                                  // FirestoreMessages.editMessage(chatId??"", messageId, messageText);
+                                }
+                              ),
+                              ListTile(
+                                title: Text("delete for eveyone "),
+                                leading: Icon(Icons.delete_forever),
+                                onTap: () {
+                                  FirestoreMessages.deleteMessageForEveryone(
+                                      chatId!, messageId);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text("Message Deleted Successfuly"),
+                                    backgroundColor: Colors.red,
+                                    duration: Duration(seconds:1 ),
+                                  )
+                                  );
+                                  Navigator.pop(context);
+
+                                },
+                              ),
+                            ],
+                          );
+                        }
+                            return Text("null");
+                            },);
+                      },
+                      child: MessageLine(
+                        message: messageText,
+                        isSeen: isSeenBy,
+                        time: messageDate, // Format timestamp
+                        isMe: isMe,
+                        isEdited:isEdited,
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+
           Container(
             color: Theming.white,
             height: 100,
@@ -83,11 +312,14 @@ class _ChatPageState extends State<ChatPage> {
                 SizedBox(
                     width: 250,
                     child: TextField(
+                      maxLines: 4,
+                      minLines: 1,
+                      controller: _messageController,
                       decoration: InputDecoration(
                         fillColor: Theming.secondary,
                         filled: true,
-                        hintText: "Type a message",
-                        hintStyle: TextStyle(color: Theming.form),
+                        hintText: "Type a message ...",
+                        hintStyle: TextStyle(color: Theming.snackBar),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide.none,
@@ -104,7 +336,13 @@ class _ChatPageState extends State<ChatPage> {
                         shape: BoxShape.circle,
                         gradient: Theming.icons,
                       ),
-                      child: IconButton(onPressed: (){}, icon: Icon(Icons.send,color: Theming.white,size: 25,))),
+                      child: IconButton(
+                          icon: Icon(Icons.send,color: Theming.white,size: 25,),
+                          onPressed:()async {
+                        FirestoreMessages
+                            .sendMessage(receiver:widget.recipentPhone ,sender:widget.currentUserPhone ,text: _messageController.text.trim());
+                        _messageController.clear();
+                      })),
                 ),
                 Spacer(),
               ],
@@ -181,7 +419,6 @@ class _ChatPageState extends State<ChatPage> {
   }
   open_image_gallery()async{
     var get = await ImagePicker().pickImage(source: ImageSource.gallery);
-    print("=========================");
 
     img=File(get!.path);
     setState(() {
@@ -195,8 +432,6 @@ class _ChatPageState extends State<ChatPage> {
 
     img=File(get.path);
     setState(() {
-      print("=========================");
-
     });
     showAndSend();
   }
@@ -225,6 +460,3 @@ class _ChatPageState extends State<ChatPage> {
 
 
 }
-
-
-

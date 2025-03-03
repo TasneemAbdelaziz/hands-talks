@@ -9,21 +9,28 @@ import 'package:hands_talks/home/homepage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:hands_talks/theming.dart';
 import 'package:hands_talks/transition/transition.dart';
+import 'package:provider/provider.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
 
-class FirebaseAuthService {
+class FirebaseAuthService extends ChangeNotifier{
+  MyUser? myUser;
   static final FirebaseAuth auth = FirebaseAuth.instance;
   static bool isCorrect = true;
+
+  MyUser? get userInfo{
+    return myUser;
+  }
   static CollectionReference<MyUser> getUserCollection() {
     return FirebaseFirestore.instance.collection('users').withConverter<MyUser>(
-          fromFirestore: (snapshot, _) => MyUser.fromJson(snapshot.data()!),
-          toFirestore: (MyUser, _) => MyUser.toJson(),
-        );
+      fromFirestore: (snapshot, _) => MyUser.fromJson(snapshot.data()!),
+      toFirestore: (MyUser, _) => MyUser.toJson(),
+    );
   }
 
+
   static Future<void> addUserToFireCloud(MyUser myUser) async {
-    return await getUserCollection().doc().set(myUser);
+    return await getUserCollection().doc(myUser.uId).set(myUser);
   }
 
   static checkExistingPhoneNumber(phoneNumber, context) async {
@@ -39,7 +46,7 @@ class FirebaseAuthService {
 
   static checkExistingEmail(emailAddress, context) async {
     final phoneQuery =
-        await getUserCollection().where('email', isEqualTo: emailAddress).get();
+    await getUserCollection().where('email', isEqualTo: emailAddress).get();
 
     if (phoneQuery.docs.isNotEmpty) {
       return true;
@@ -49,10 +56,10 @@ class FirebaseAuthService {
 
   static Future<void> registerWithEmailAndPassword(
       {required String emailAddress,
-      required String password,
-      required String userName,
-      required String phoneNumber,
-      required context}) async {
+        required String password,
+        required String userName,
+        required String phoneNumber,
+        required context}) async {
     if (await checkExistingPhoneNumber(phoneNumber, context) == true) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -70,7 +77,7 @@ class FirebaseAuthService {
       );
       try {
         final UserCredential credential =
-            await auth.createUserWithEmailAndPassword(
+        await auth.createUserWithEmailAndPassword(
           email: emailAddress,
           password: password,
         );
@@ -92,10 +99,10 @@ class FirebaseAuthService {
           showCancelBtn: false, // No Cancel button
           showConfirmBtn: false,
           autoCloseDuration:
-              Duration(seconds: 3), // Automatically close after 3 seconds
+          Duration(seconds: 3), // Automatically close after 3 seconds
         );
 
-          // Navigate to LoginScreen after the timer
+        // Navigate to LoginScreen after the timer
         Future.delayed(Duration(seconds: 3), () {
           Navigator.pushReplacementNamed(context, LoginScreen.routeName);
         });
@@ -138,7 +145,6 @@ class FirebaseAuthService {
       text: 'Please wait...',
     );
     try {
-      Navigator.pop(context);
       final credential = await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: emailAddress, password: password);
       QuickAlert.show(
@@ -147,7 +153,7 @@ class FirebaseAuthService {
         showConfirmBtn: false,
         type: QuickAlertType.success,
         title: 'Sign-In Successful',
-        text: 'Welcome back, ${credential.user?.displayName??""}!',
+        text: 'Welcome back, ${credential.user?.displayName ?? ""}!',
         autoCloseDuration: Duration(seconds: 3),
       );
       // Navigate to LoginScreen after the timer
@@ -165,10 +171,9 @@ class FirebaseAuthService {
     }
   }
 
-
   static Future<void> signInWithGoogle({
     required BuildContext context,
-     String? PhoneNumber,
+    String? PhoneNumber,
     String? email,
   }) async {
     // Show loading alert
@@ -196,7 +201,8 @@ class FirebaseAuthService {
       }
 
       // Obtain the auth details from the request
-      final GoogleSignInAuthentication? googleAuth = await googleUser.authentication;
+      final GoogleSignInAuthentication? googleAuth =
+      await googleUser.authentication;
 
       // Dismiss loading alert
       Navigator.pop(context);
@@ -228,17 +234,9 @@ class FirebaseAuthService {
           Navigator.pushReplacementNamed(context, Translation.routeName);
         });
       } else {
-
-
         // Navigate to PhoneNumberScreen
-        Navigator.pushNamed(
-          context,
-          PhoneNumberScreen.routeName,
-          arguments: {
-            "googleUser":googleUser
-          }
-
-        );
+        Navigator.pushNamed(context, PhoneNumberScreen.routeName,
+            arguments: {"googleUser": googleUser});
         // Add user to the database
         // MyUser myUser = MyUser(
         //   uId: googleUser.id,
@@ -260,8 +258,6 @@ class FirebaseAuthService {
       );
     }
   }
-
-
 
   // static verifyPhoneNumberWithOTP (
   //     {required String emailAddress,
@@ -334,13 +330,55 @@ class FirebaseAuthService {
   //   );
   // }
 
-    static checkSignInState() {
+  static checkSignInState() {
     User? user = auth.currentUser;
     if (user != null) {
-     return Translation.routeName; // Replace '/home' with your home screen route
-    }else{
-      return
-          RegisterScreen.routeName;
+      return Translation
+          .routeName; // Replace '/home' with your home screen route
+    } else {
+      return RegisterScreen.routeName;
     }
   }
+  static Future<void> signOut(BuildContext context) async {
+    try {
+      await auth.signOut();
+      Navigator.pushReplacementNamed(context, LoginScreen.routeName);
+    } catch (e) {
+      print('Error signing out: $e');
+    }
+  }
+   getUserProfileInfo() async {
+    User? user = auth.currentUser;
+    if (user == null) {
+      print("No user is signed in.");
+      return null;
+    }
+    var doc = await getUserCollection().doc(user.uid).get();
+    myUser = doc.data();
+    notifyListeners();
+
+  }
+
+  Future<void> updateUserProfileInfo({String? newName}) async {
+    User? user = auth.currentUser;
+    if (user == null) {
+      print("No user is signed in.");
+      return;
+    }
+    await getUserCollection().doc(user.uid).update(
+        {
+          'name': newName,
+
+        }
+    );
+    notifyListeners();
+
+
+  }
+
+
+
+
+
+
 }

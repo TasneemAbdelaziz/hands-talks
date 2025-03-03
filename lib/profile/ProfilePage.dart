@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:hands_talks/Authentication/Login/Login_Screen.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import '../theming.dart';
@@ -73,10 +75,13 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ),
         actions: [
+
           IconButton(
             icon: Icon(Icons.logout, size: 30, color: Theming.primary),
-            onPressed: () {
-              _showLogoutConfirmation(context); // Show logout confirmation when pressed
+            onPressed: () async{
+             await FirebaseAuth.instance.signOut();
+              Navigator.pushReplacementNamed(context, LoginScreen.routeName);
+              // _showLogoutConfirmation(context);// Show logout confirmation when pressed
             },
           ),
         ],

@@ -42,7 +42,7 @@ class Theming{
 
     bodySmall: TextStyle(
       fontSize: 16,
-      color:form ,
+      color:snackBar,
     ),
 
   ),

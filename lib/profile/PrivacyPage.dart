@@ -11,10 +11,7 @@ class PrivacyPage extends StatelessWidget {
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios),
           onPressed: ()  {
-           Navigator.push(
-              context,
-               MaterialPageRoute(builder: (context) => ProfilePage(),)
-      );
+           Navigator.pop(context);
       },
         ),
         title: Text('Privacy Policy'),
