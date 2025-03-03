@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "450406837124",
-    "project_id": "hands-talk-b9864",
-    "storage_bucket": "hands-talk-b9864.firebasestorage.app"
+    "project_number": "9803608938",
+    "project_id": "hands-talks-e581c",
+    "storage_bucket": "hands-talks-e581c.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:450406837124:android:05a8d28b2dbd965de14bd1",
+        "mobilesdk_app_id": "1:9803608938:android:8afc88497ea6865977eb13",
         "android_client_info": {
           "package_name": "com.example.hands_talks"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBCHtT0SCST_Ui65eI7umSCtV4ky2JhMqs"
+          "current_key": "AIzaSyBBMPLkopCwYjRf-preAgj5_OH4OZiiaJw"
         }
       ],
       "services": {
