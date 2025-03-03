@@ -13,16 +13,20 @@ import 'package:provider/provider.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
 
-class FirebaseAuthService extends ChangeNotifier{
- MyUser? myUser;
+class FirebaseAuthService {
   static final FirebaseAuth auth = FirebaseAuth.instance;
   static bool isCorrect = true;
+
+  MyUser? get userInfo{
+    return myUser;
+  }
   static CollectionReference<MyUser> getUserCollection() {
     return FirebaseFirestore.instance.collection('users').withConverter<MyUser>(
-          fromFirestore: (snapshot, _) => MyUser.fromJson(snapshot.data()!),
-          toFirestore: (MyUser, _) => MyUser.toJson(),
-        );
+      fromFirestore: (snapshot, _) => MyUser.fromJson(snapshot.data()!),
+      toFirestore: (MyUser, _) => MyUser.toJson(),
+    );
   }
+
 
   static Future<void> addUserToFireCloud(MyUser myUser) async {
     return await getUserCollection().doc(myUser.uId).set(myUser);
@@ -41,7 +45,7 @@ class FirebaseAuthService extends ChangeNotifier{
 
   static checkExistingEmail(emailAddress, context) async {
     final phoneQuery =
-        await getUserCollection().where('email', isEqualTo: emailAddress).get();
+    await getUserCollection().where('email', isEqualTo: emailAddress).get();
 
     if (phoneQuery.docs.isNotEmpty) {
       return true;
@@ -51,10 +55,10 @@ class FirebaseAuthService extends ChangeNotifier{
 
   static Future<void> registerWithEmailAndPassword(
       {required String emailAddress,
-      required String password,
-      required String userName,
-      required String phoneNumber,
-      required context}) async {
+        required String password,
+        required String userName,
+        required String phoneNumber,
+        required context}) async {
     if (await checkExistingPhoneNumber(phoneNumber, context) == true) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -72,7 +76,7 @@ class FirebaseAuthService extends ChangeNotifier{
       );
       try {
         final UserCredential credential =
-            await auth.createUserWithEmailAndPassword(
+        await auth.createUserWithEmailAndPassword(
           email: emailAddress,
           password: password,
         );
@@ -94,7 +98,7 @@ class FirebaseAuthService extends ChangeNotifier{
           showCancelBtn: false, // No Cancel button
           showConfirmBtn: false,
           autoCloseDuration:
-              Duration(seconds: 3), // Automatically close after 3 seconds
+          Duration(seconds: 3), // Automatically close after 3 seconds
         );
 
         // Navigate to LoginScreen after the timer
@@ -196,8 +200,7 @@ class FirebaseAuthService extends ChangeNotifier{
       }
 
       // Obtain the auth details from the request
-      final GoogleSignInAuthentication? googleAuth =
-          await googleUser.authentication;
+      final GoogleSignInAuthentication? googleAuth = await googleUser.authentication;
 
       // Dismiss loading alert
       Navigator.pop(context);
@@ -334,42 +337,26 @@ class FirebaseAuthService extends ChangeNotifier{
       return RegisterScreen.routeName;
     }
   }
-  static Future<void> signOut(BuildContext context) async {
-    try {
-      await auth.signOut();
-      Navigator.pushReplacementNamed(context, LoginScreen.routeName);
-    } catch (e) {
-      print('Error signing out: $e');
-    }
+}
+
   }
-    getUserProfileInfo() async {
+
+  Future<void> updateUserProfileInfo({String? newName}) async {
     User? user = auth.currentUser;
     if (user == null) {
       print("No user is signed in.");
-      return null;
+      return;
     }
-    var doc = await getUserCollection().doc(user.uid).get();
-    myUser = doc.data();
+    await getUserCollection().doc(user.uid).update(
+        {
+          'name': newName,
+
+        }
+    );
     notifyListeners();
 
+
   }
-
- Future<void> updateUserProfileInfo({String? newName}) async {
-    User? user = auth.currentUser;
-  if (user == null) {
-    print("No user is signed in.");
-    return;
-  }
-  await getUserCollection().doc(user.uid).update(
-    {
-      'name': newName,
-
-    }
-  );
-notifyListeners();
-
-
-}
 
 
 
