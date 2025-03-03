@@ -3,15 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hands_talks/Authentication/Login/Login_Screen.dart';
 import 'package:hands_talks/Authentication/Register/Register_Screen.dart';
-import 'package:hands_talks/Authentication/otp_phone.dart';
 import 'package:hands_talks/Authentication/phoneNumber_Screen.dart';
 import 'package:hands_talks/Firebase_Utils/Firebase_Auth.dart';
 import 'package:hands_talks/home/homepage.dart';
-//import 'package:hands_talks/message/chatpage.dart';
-// import 'package:hands_talks/message/messagepage.dart';
-import 'package:hands_talks/message/chatpage.dart';
-import 'package:hands_talks/message/messagespage.dart';
-import 'package:hands_talks/message/chatpage.dart';
 import 'package:hands_talks/profile/EditInformation.dart';
 import 'package:hands_talks/profile/ProfilePage.dart';
 import 'package:hands_talks/transition/transition.dart';
@@ -66,7 +60,6 @@ class MyApp extends StatelessWidget {
           TextProcessing.routeName:(context)=> TextProcessing(),
          ProfilePage.routeName:(context)=> ProfilePage(),
           EditInformationPage.routeName: (context) => EditInformationPage(),
-          ChatPage.routeName: (context) => const ChatPage()
       
         },
       

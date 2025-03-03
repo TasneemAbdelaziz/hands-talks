@@ -13,20 +13,16 @@ import 'package:provider/provider.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
 
-class FirebaseAuthService {
+class FirebaseAuthService extends ChangeNotifier{
+  MyUser? myUser;
   static final FirebaseAuth auth = FirebaseAuth.instance;
   static bool isCorrect = true;
-
-  MyUser? get userInfo{
-    return myUser;
-  }
   static CollectionReference<MyUser> getUserCollection() {
     return FirebaseFirestore.instance.collection('users').withConverter<MyUser>(
       fromFirestore: (snapshot, _) => MyUser.fromJson(snapshot.data()!),
       toFirestore: (MyUser, _) => MyUser.toJson(),
     );
   }
-
 
   static Future<void> addUserToFireCloud(MyUser myUser) async {
     return await getUserCollection().doc(myUser.uId).set(myUser);
@@ -200,7 +196,8 @@ class FirebaseAuthService {
       }
 
       // Obtain the auth details from the request
-      final GoogleSignInAuthentication? googleAuth = await googleUser.authentication;
+      final GoogleSignInAuthentication? googleAuth =
+      await googleUser.authentication;
 
       // Dismiss loading alert
       Navigator.pop(context);
@@ -337,7 +334,23 @@ class FirebaseAuthService {
       return RegisterScreen.routeName;
     }
   }
-}
+  static Future<void> signOut(BuildContext context) async {
+    try {
+      await auth.signOut();
+      Navigator.pushReplacementNamed(context, LoginScreen.routeName);
+    } catch (e) {
+      print('Error signing out: $e');
+    }
+  }
+  getUserProfileInfo() async {
+    User? user = auth.currentUser;
+    if (user == null) {
+      print("No user is signed in.");
+      return null;
+    }
+    var doc = await getUserCollection().doc(user.uid).get();
+    myUser = doc.data();
+    notifyListeners();
 
   }
 
