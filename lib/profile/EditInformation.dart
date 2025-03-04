@@ -17,7 +17,6 @@ class EditInformationPage extends StatefulWidget {
 class _EditInformationPageState extends State<EditInformationPage> {
   // Controllers for text fields
    TextEditingController _nameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
   String _selectedCountry = "Egypt"; // Default country
 
   final List<String> _countries = ["Egypt"];
@@ -92,19 +91,7 @@ class _EditInformationPageState extends State<EditInformationPage> {
             ),
             const SizedBox(height: 16),
 
-            // Password Field
-            TextFormField(
-              controller: _passwordController,
-              decoration: InputDecoration(
-                labelText: "Password",
-                labelStyle: TextStyle(color: Theming.primary),
-                filled: true,
-                fillColor: Theming.form,
-                border: OutlineInputBorder(),
-              ),
-              obscureText: true,
-            ),
-            const SizedBox(height: 16),
+
 
             TextFormField(
               controller: TextEditingController(text:authProvider.myUser!.phoneNumber!.substring(1)),

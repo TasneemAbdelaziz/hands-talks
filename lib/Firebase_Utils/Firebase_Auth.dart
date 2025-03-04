@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:hands_talks/Authentication/Login/Login_Screen.dart';
 import 'package:hands_talks/Authentication/Register/Register_Screen.dart';
@@ -12,7 +13,9 @@ import 'package:hands_talks/transition/transition.dart';
 import 'package:provider/provider.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
-
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'dart:io';
 class FirebaseAuthService extends ChangeNotifier{
   MyUser? myUser;
   static final FirebaseAuth auth = FirebaseAuth.instance;
@@ -48,6 +51,10 @@ class FirebaseAuthService extends ChangeNotifier{
     }
     return false;
   }
+
+
+
+
 
   static Future<void> registerWithEmailAndPassword(
       {required String emailAddress,
@@ -211,7 +218,7 @@ class FirebaseAuthService extends ChangeNotifier{
         );
 
         // Sign in with Firebase
-        await FirebaseAuth.instance.signInWithCredential(credential);
+        await auth.signInWithCredential(credential);
 
         // Show success alert
         QuickAlert.show(
@@ -232,14 +239,8 @@ class FirebaseAuthService extends ChangeNotifier{
         // Navigate to PhoneNumberScreen
         Navigator.pushNamed(context, PhoneNumberScreen.routeName,
             arguments: {"googleUser": googleUser});
-        // Add user to the database
-        // MyUser myUser = MyUser(
-        //   uId: googleUser.id,
-        //   name: googleUser.displayName ?? "Unknown",
-        //   email: googleUser.email,
-        //   phoneNumber: PhoneNumber,
-        // );
-        // await addUserToFireCloud(myUser);
+
+
       }
     } catch (e) {
       Navigator.pop(context); // Dismiss loading alert
@@ -254,76 +255,9 @@ class FirebaseAuthService extends ChangeNotifier{
     }
   }
 
-  // static verifyPhoneNumberWithOTP (
-  //     {required String emailAddress,
-  //     required String password,
-  //     required String userName,
-  //     required String phoneNumber,
-  //     required otpCode,
-  //     required timer,
-  //     required context}) async {
-  //   await FirebaseAuth.instance.verifyPhoneNumber(
-  //     phoneNumber: phoneNumber,
-  //     timeout: Duration(seconds: timer),
-  //     verificationCompleted: (PhoneAuthCredential credential) {},
-  //     verificationFailed: (FirebaseAuthException e) {
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(content: Text("Verification failed: ${e.message}")),
-  //       );
-  //     },
-  //     codeSent: (String verificationId, int? resendToken) async {
-  //       // Update the UI - wait for the user to enter the SMS code
-  //       String smsCode = otpCode;
-  //       // Create a PhoneAuthCredential with the code
-  //
-  //         try {
-  //           PhoneAuthCredential credential = PhoneAuthProvider.credential(
-  //               verificationId: verificationId, smsCode: smsCode);
-  //
-  //           UserCredential credential2 =
-  //               await auth.createUserWithEmailAndPassword(
-  //             email: emailAddress,
-  //             password: password,
-  //           );
-  //           MyUser myUser = MyUser(
-  //               uId: credential2.user?.uid ?? "",
-  //               name: userName,
-  //               email: emailAddress,
-  //               phoneNumber: phoneNumber);
-  //           addUserToFireCloud(myUser);
-  //           ScaffoldMessenger.of(context).showSnackBar(
-  //             SnackBar(content: Text("Login successful!")),
-  //           );
-  //           Navigator.pushReplacementNamed(context, LoginScreen.routeName);
-  //         } catch (e) {
-  //           // Handle error
-  //
-  //           print("Error: $e");
-  //           ScaffoldMessenger.of(context).showSnackBar(
-  //             SnackBar(
-  //               content: Text("Invalid OTP. Please try again."),
-  //               backgroundColor: Colors.red,
-  //             ),
-  //           );
-  //           isCorrect=false;
-  //         }
-  //
-  //         // Sign the user in (or link) with the credential
-  //
-  //     },
-  //     codeAutoRetrievalTimeout: (String verificationId) {
-  //
-  //   //     FirebaseAuthService.verifyPhoneNumberWithOTP(
-  //   //         emailAddress: emailAddress,
-  //   //         password: password,
-  //   //         userName: userName,
-  //   //         phoneNumber: phoneNumber,
-  //   //         otpCode: otpCode,
-  //   //         timer: timer,
-  //   //         context: context);
-  //     },
-  //   );
-  // }
+
+
+
 
   static checkSignInState() {
     User? user = auth.currentUser;
@@ -334,10 +268,18 @@ class FirebaseAuthService extends ChangeNotifier{
       return RegisterScreen.routeName;
     }
   }
-  static Future<void> signOut(BuildContext context) async {
+   Future<void> signOut(BuildContext context) async {
     try {
+      await GoogleSignIn().signOut();
       await auth.signOut();
-      Navigator.pushReplacementNamed(context, LoginScreen.routeName);
+
+      myUser = null; // ✅ Clear user data after logout
+      notifyListeners();
+      Navigator.of(context).pushNamedAndRemoveUntil(
+        LoginScreen.routeName,
+            (route) => false,
+      );
+
     } catch (e) {
       print('Error signing out: $e');
     }
@@ -360,6 +302,7 @@ class FirebaseAuthService extends ChangeNotifier{
       print("No user is signed in.");
       return;
     }
+    // await user.updatePhotoURL(image??"");
     await getUserCollection().doc(user.uid).update(
         {
           'name': newName,
@@ -370,6 +313,9 @@ class FirebaseAuthService extends ChangeNotifier{
 
 
   }
+
+
+
 
 
 

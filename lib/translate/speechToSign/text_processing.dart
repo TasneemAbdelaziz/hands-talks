@@ -1,7 +1,6 @@
-import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:hands_talks/translate/speechToSign/speech_processing.dart';
 
 import '../../theming.dart';
 
@@ -50,17 +49,11 @@ class _TextProcessingState extends State<TextProcessing> {
               color: Colors.white,),
               child: Column(
                 children: [
-                  AudioWaveforms(
-                    enableGesture: true,
-                    size: Size(MediaQuery.of(context).size.width * 0.8, 50.h),
-                    recorderController:args!["recorderController"] as RecorderController,
-                    waveStyle: WaveStyle(
-                      waveColor: Theming.primary,
-                      extendWaveform: true,
-                      showMiddleLine: false,
-                      waveThickness: 3,
-                    ),
-                  ),
+                  CustomPaint(
+                    size: Size(MediaQuery.of(context).size.width * 0.8, 50.h), // Adjust size as needed
+                    painter: WaveformPainter(args!['waveformValues']),
+                  )
+                  ,
                   SizedBox(height: 25.h,),
                   Row(
                     children: [

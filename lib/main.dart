@@ -15,6 +15,7 @@ import 'package:hands_talks/translate/translatepage.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'Authentication/forgot_password/forgot_password_screen.dart';
+import 'Firebase_Utils/profile_setting.dart';
 import 'firebase_options.dart';
 
 void main()async {
@@ -29,6 +30,7 @@ void main()async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) =>FirebaseAuthService() ),
+        ChangeNotifierProvider(create: (context) => ProfileSetting()),
       ],
       child: const MyApp(),
     ),
@@ -47,11 +49,11 @@ class MyApp extends StatelessWidget {
       minTextAdapt: true,
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        initialRoute: RegisterScreen.routeName,
+        initialRoute:FirebaseAuthService.checkSignInState(),
         routes: {
           RegisterScreen.routeName:(context) => RegisterScreen(),
           LoginScreen.routeName:(context) => LoginScreen(),
-          '/forgot_password_screen': (context) => ChangePasswordPage(),
+          ChangePasswordPage.routeName: (context) => ChangePasswordPage(),
           PhoneNumberScreen.routeName:(context) => PhoneNumberScreen(),
           // OTPVerification.routeName:(context) => OTPVerification(),
           Translation.routeName: (context) => Translation(),

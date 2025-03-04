@@ -2,19 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class ChangePasswordPage extends StatefulWidget {
+  static const String routeName = "ChangePasswordPage";
+
   @override
   _ChangePasswordPageState createState() => _ChangePasswordPageState();
 }
 
 class _ChangePasswordPageState extends State<ChangePasswordPage> {
   final TextEditingController emailController = TextEditingController();
-  bool isEmailNotEmpty = false; // Tracks if email input is filled
-  bool isLoading = false; // For showing progress indicator
+  bool isEmailNotEmpty = false;
+  bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    // Add listener to email input
     emailController.addListener(() {
       setState(() {
         isEmailNotEmpty = emailController.text.trim().isNotEmpty;
@@ -28,25 +29,47 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     super.dispose();
   }
 
-  // Function to send password reset email
+  /// Sends password reset email
   Future<void> sendPasswordResetEmail() async {
+    if (isLoading) return;
+
     setState(() {
-      isLoading = true; // Show loading indicator
+      isLoading = true;
     });
+
     try {
+      FocusScope.of(context).unfocus(); // Close keyboard
+
       await FirebaseAuth.instance
           .sendPasswordResetEmail(email: emailController.text.trim());
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Reset password email sent! Check your inbox.'),
           backgroundColor: Colors.green,
         ),
       );
-    } catch (e) {
-      print('Error: $e'); // Print the exact Firebase error
+    } on FirebaseAuthException catch (e) {
+      String errorMessage = "Failed to send email.";
+      if (e.code == 'user-not-found') {
+        errorMessage = "No account found for this email.";
+      } else if (e.code == 'invalid-email') {
+        errorMessage = "Invalid email address.";
+      } else if (e.code == 'network-request-failed') {
+        errorMessage = "Network error. Please try again.";
+      }
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Failed to send email: ${e.toString()}'),
+          content: Text(errorMessage),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } catch (e) {
+      print('Error: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Something went wrong. Please try again.'),
           backgroundColor: Colors.red,
         ),
       );
@@ -63,10 +86,10 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 40), // Space for status bar
+            SizedBox(height: 40),
+
             // Back Arrow
             IconButton(
               icon: Icon(Icons.arrow_back_ios, color: Colors.black),
@@ -76,7 +99,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
             ),
             SizedBox(height: 20),
 
-            // Logo (Center Aligned)
+            // Logo
             Center(
               child: Image.asset(
                 'assets/images/logo.jpg', // Replace with your app's logo asset
@@ -85,7 +108,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
             ),
             SizedBox(height: 30),
 
-            // Title: Change Password
+            // Title
             Center(
               child: Text(
                 'Change Password',
@@ -98,10 +121,10 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
             ),
             SizedBox(height: 10),
 
-            // Subtitle: Instructions
+            // Instructions
             Center(
               child: Text(
-                'Enter your email account to receive a verification code to change your password.',
+                'Enter your email to receive a verification link.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14,
@@ -116,7 +139,6 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
               'Email',
               style: TextStyle(
                 fontSize: 16,
-                color: Colors.black,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -146,27 +168,24 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
               width: double.infinity,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                  isEmailNotEmpty ? Color(0xFF0A3977) : Colors.grey[300],
+                  backgroundColor: isEmailNotEmpty ? Color(0xFF0A3977) : Colors.grey[300],
                   padding: EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8.0),
                   ),
                 ),
-                onPressed: isEmailNotEmpty && !isLoading
-                    ? sendPasswordResetEmail
-                    : null,
+                onPressed: isEmailNotEmpty && !isLoading ? sendPasswordResetEmail : null,
                 child: isLoading
-                    ? CircularProgressIndicator(
-                  color: Colors.white,
+                    ? SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                 )
                     : Text(
                   'Continue',
                   style: TextStyle(
                     fontSize: 16,
-                    color: isEmailNotEmpty
-                        ? Colors.white
-                        : Colors.grey[500],
+                    color: isEmailNotEmpty ? Colors.white : Colors.grey[500],
                   ),
                 ),
               ),

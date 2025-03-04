@@ -86,6 +86,7 @@ class _MessagesPageState extends State<MessagesPage> {
 
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text("Messages",style: Theming.lightTheme.textTheme.titleLarge,),
         elevation: 0,
         actions: [

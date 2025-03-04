@@ -1,6 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:hands_talks/Authentication/Widgets/Text_Field.dart';
 import 'package:hands_talks/Firebase_Utils/Firebase_Auth.dart';
 import 'package:hands_talks/Model/myUser.dart';
@@ -31,6 +33,7 @@ class _PhoneNumberScreenState extends State<PhoneNumberScreen> {
   }
   @override
   Widget build(BuildContext context) {
+
     return SafeArea(
         child: Scaffold(
       appBar: AppBar(
@@ -162,13 +165,24 @@ class _PhoneNumberScreenState extends State<PhoneNumberScreen> {
     }else{
         // Dismiss loading alert
         Navigator.pop(context);
+        final GoogleSignInAuthentication? googleAuth =
+        await googleUser.authentication;
+        final credential = GoogleAuthProvider.credential(
+          accessToken: googleAuth!.accessToken,
+          idToken: googleAuth.idToken,
+        );
+        UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+        User? user = userCredential.user;
         MyUser myUser = MyUser(
-          uId: googleUser.id,
+          uId:user!.uid ,
           name: googleUser.displayName ?? "Unknown",
           email: googleUser.email,
           phoneNumber:phoneNumber.text,
         );
         await FirebaseAuthService.addUserToFireCloud(myUser);
+        // Sign in with Firebase
+        await FirebaseAuthService.auth.signInWithCredential(credential);
+
         // Show success alert
         QuickAlert.show(
           context: context,
@@ -179,6 +193,9 @@ class _PhoneNumberScreenState extends State<PhoneNumberScreen> {
           showConfirmBtn: false,
           autoCloseDuration: Duration(seconds: 2),
         );
+        setState(() {
+
+        });
 
         // Navigate to HomePage after the timer
         Future.delayed(Duration(seconds: 3), () {

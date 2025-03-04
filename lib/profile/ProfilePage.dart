@@ -1,4 +1,4 @@
-
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hands_talks/Model/myUser.dart';
 import 'dart:io';
@@ -6,13 +6,16 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 import '../Authentication/Login/Login_Screen.dart';
+import '../Authentication/forgot_password/forgot_password_screen.dart';
 import '../Firebase_Utils/Firebase_Auth.dart';
+import '../Firebase_Utils/profile_setting.dart';
 import '../theming.dart';
 import 'EditInformation.dart';
 import 'PrivacyPage.dart';
 import 'CustomAlertDialog.dart';
 import 'HelpSupportPage.dart';
 import 'contact_us.dart';
+import 'full_screen_image.dart';
 
 class ProfilePage extends StatefulWidget {
   static const String routeName = "ProfilePage";
@@ -22,10 +25,13 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  File? _image; // Selected profile picture
+  late File _image;
+  String? _profileImageUrl; // Store user profile image URL
   bool _isNotificationsEnabled = true; // Track notification state
+  late var authProvider;
+  bool _isUploading = false; // Track upload state
 
-  // Pick an image from the gallery
+
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
@@ -33,6 +39,17 @@ class _ProfilePageState extends State<ProfilePage> {
     if (image != null) {
       setState(() {
         _image = File(image.path);
+        _isUploading = true; // Start upload indicator
+      });
+
+      // Upload and update profile picture
+      await authProvider.upLoadProfileImage(image: _image);
+
+      // Fetch the latest profile image from Firebase Auth
+      User? user = FirebaseAuthService.auth.currentUser;
+      setState(() {
+        _profileImageUrl = user?.photoURL; // Ensure UI updates
+        _isUploading = false; // Stop upload indicator
       });
     }
   }
@@ -50,9 +67,12 @@ class _ProfilePageState extends State<ProfilePage> {
           negativeButtonText: 'Cancel',
           onPositivePressed: () {
             Navigator.of(dialogContext).pop(); // Close the dialog
-            FirebaseAuthService.signOut(context);
-            Navigator.pushReplacementNamed(
-                context, LoginScreen.routeName); // Example of logout functionality
+            authProvider.signOut(context);
+            Navigator.pushReplacementNamed(context,
+                LoginScreen.routeName); // Example of logout functionality
+            setState(() {
+
+            });
           },
           onNegativePressed: () {
             Navigator.of(dialogContext).pop(); // Close the dialog
@@ -68,10 +88,12 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    var authProvider=Provider.of<FirebaseAuthService>(context);
-   authProvider.getUserProfileInfo();
+    authProvider = Provider.of<FirebaseAuthService>(context);
+    authProvider.getUserProfileInfo();
+
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: const Color(0xFFEBF0F0),
         elevation: 0,
         title: Text(
@@ -86,7 +108,10 @@ class _ProfilePageState extends State<ProfilePage> {
             icon: Icon(Icons.logout, size: 30, color: Theming.primary),
             onPressed: () {
               _showLogoutConfirmation(
-                  context); // Show logout confirmation when pressed
+                  context);
+              setState(() {
+
+              });// Show logout confirmation when pressed
             },
           ),
         ],
@@ -111,7 +136,8 @@ class _ProfilePageState extends State<ProfilePage> {
                     _buildSettingsTile(
                       icon: Icons.edit,
                       title: 'Edit profile information',
-                      onTap: () => Navigator.pushNamed(context, EditInformationPage.routeName),
+                      onTap: () => Navigator.pushNamed(
+                          context, EditInformationPage.routeName),
                     ),
                     _buildSettingsTile(
                       icon: Icons.notifications,
@@ -134,7 +160,16 @@ class _ProfilePageState extends State<ProfilePage> {
                       },
                     ),
                   ]),
+
                   _buildSettingsBox([
+                _buildSettingsTile(
+                  icon: Icons.password,
+                  title: 'Change Password',
+                  onTap: () {
+                    Navigator.pushNamed(
+                        context, ChangePasswordPage.routeName);
+                  },
+                ),
                     _buildSettingsTile(
                       icon: Icons.security,
                       title: 'Security',
@@ -194,37 +229,56 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
     );
   }
+
   Widget _buildProfileHeader() {
     return Center(
       child: Column(
         children: [
           const SizedBox(height: 30),
-          GestureDetector(
-            onTap: _pickImage,
-            child: CircleAvatar(
-              radius: 60,
-              backgroundImage: _image != null
-                  ? FileImage(_image!)
-                  : const AssetImage('assets/Default_pfp.jpg') as ImageProvider,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Consumer<FirebaseAuthService>(builder: (context, authProvider, child) {
-            return authProvider.myUser==null?Center(child:CircularProgressIndicator(),):Column(
-              children: [
-                Text(
-                  '${authProvider.myUser?.name ?? ""}',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                // Text('${authProvider.myUser?.email ?? ""}'),
-                Text('${authProvider.myUser?.phoneNumber ?? ""}'),
-              ],
-            );
-          },)
+      Consumer<ProfileSetting>(
+        builder: (context, profile, child) {
+          profile.loadProfileImage();
 
+          return  authProvider.myUser == null?Center(child: CircularProgressIndicator(),):
+
+          GestureDetector(
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => FullScreenImage()),
+            ),
+            child: Hero(
+              tag: "profilePic",
+              child: CircleAvatar(
+                radius: 50,
+                backgroundImage: profile.profileImageUrl != null
+                    ? NetworkImage(profile.profileImageUrl!)
+                    : AssetImage("assets/Default_pfp.jpg") as ImageProvider,
+              ),
+            ),
+          );
+        }),
+          SizedBox(height: 16),
+          Consumer<FirebaseAuthService>(
+            builder: (context, authProvider, child) {
+              return authProvider.myUser == null
+                  ? Center(
+                      child: CircularProgressIndicator(),
+                    )
+                  : Column(
+                      children: [
+                        Text(
+                          '${authProvider.myUser?.name ?? ""}',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        // Text('${authProvider.myUser?.email ?? ""}'),
+                        Text('${authProvider.myUser?.phoneNumber ?? ""}'),
+                      ],
+                    );
+            },
+          )
         ],
       ),
     );
