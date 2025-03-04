@@ -77,6 +77,7 @@ class _MessagesPageState extends State<MessagesPage> {
       print(uid);
       print(name);
       print("???????????????????????????????????");
+
     });
 
 
@@ -109,11 +110,20 @@ class _MessagesPageState extends State<MessagesPage> {
               child:Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 5,vertical: 5),
                 child: StreamBuilder<QuerySnapshot>(stream: _firestore.collection('chats').where("users",arrayContains:currentUserPhone).orderBy('lastMessageTime',descending: true).snapshots(), builder: (context,snapshot){
+
+
+                  Stream<QuerySnapshot> chatStream = _firestore
+                      .collection('chats')
+                      .where("users", arrayContains: currentUserPhone)
+                      .orderBy('lastMessageTime', descending: true)
+                      .snapshots();
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Text("");
                   }
 
                   if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+
+
                     return Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -182,7 +192,6 @@ class _MessagesPageState extends State<MessagesPage> {
                           );
                         },
                       );
-
 
 
                     },
