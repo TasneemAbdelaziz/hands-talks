@@ -2,8 +2,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:hands_talks/Firebase_Utils/Firebase_Auth.dart';
+import 'package:hands_talks/Model/myUser.dart';
 import 'package:hands_talks/message/chatpage.dart';
 import 'package:hands_talks/message/custom_search_bar.dart';
+import 'package:hands_talks/message/messages_page.dart';
 import 'package:hands_talks/theming.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -18,6 +20,7 @@ class ContactsPage extends StatefulWidget {
 }
 
 class _ContactsPageState extends State<ContactsPage> {
+
   final SearchController searchController = SearchController();
   late FirebaseAuthService authProvider;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -104,16 +107,38 @@ class _ContactsPageState extends State<ContactsPage> {
     return Scaffold(
       appBar: AppBar(
           actions: [
-            CustomSearchBar(contacts: contacts)
-
+            // CustomSearchBar(contacts: contacts)
+            IconButton(onPressed: (){
+              setState(() {
+                isSearching = !isSearching;
+              });
+            }, icon: Icon(isSearching?Icons.clear:Icons.search))
           ],
-          title: Text("Select Contacts")),
+          title:isSearching?TextField(
+            // style: TextStyle(fontSize: 16,),
+            onChanged: (val){
+              searchList.clear();
+              for(var i in contacts){
+                if(i.displayName.toLowerCase().contains(val.toLowerCase()) ||i.phones.toString().contains(val)  ){
+                  searchList.add(i);
+                }
+                setState(() {
+                  searchList;
+                });
+              }
+            },
+            autofocus: true,
+            decoration: InputDecoration(
+              border: InputBorder.none,
+              hintText: "Search Name,Phone...",
+            ),
+          ) :Text("Select Contacts")),
       body: contacts.isEmpty
           ? Center(child: CircularProgressIndicator())
           : ListView.builder(
-        itemCount: contacts.length,
+        itemCount: isSearching?searchList.length:contacts.length,
         itemBuilder: (context, index) {
-          final contact = contacts[index];
+          final contact = isSearching?searchList[index]:contacts[index];
           final phoneNumber =
           contact.phones.isNotEmpty ? contact.phones.first.number : "";
 
@@ -125,19 +150,28 @@ class _ContactsPageState extends State<ContactsPage> {
             subtitle: Text(phoneNumber),
             trailing: isAppUser
                 ? IconButton(
-              onPressed: () {
-                print("00000000000000000000000000");
-                print(currentUserPhone);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ChatPage(
-                      currentUserPhone:currentUserPhone,
-                      recipentPhone: phoneNumber,
-                      recipentName: contact.displayName,
+              onPressed: ()async {
+                QuerySnapshot userSnapshot = await _firestore
+                    .collection('users')
+                    .where('phoneNumber', isEqualTo: phoneNumber)
+                    .limit(1)
+                    .get();
+                if (userSnapshot.docs.isNotEmpty) {
+                  var userData = userSnapshot.docs.first.data() as Map<String, dynamic>;
+
+                  MyUser selectedUser = MyUser.fromJson(userData);
+
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ChatPage(
+                        user: selectedUser,
+                      ),
                     ),
-                  ),
-                );
+                  );
+                } else {
+                  print("User not found in Firestore.");
+                }
               },
               icon: Icon(Icons.send),
               color: Theming.primary,

@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -162,11 +163,13 @@ class _PhoneNumberScreenState extends State<PhoneNumberScreen> {
     }else{
         // Dismiss loading alert
         Navigator.pop(context);
+        final token = await FirebaseMessaging.instance.getToken();
         MyUser myUser = MyUser(
           uId: googleUser.id,
           name: googleUser.displayName ?? "Unknown",
           email: googleUser.email,
           phoneNumber:phoneNumber.text,
+          fcmToken: token,
         );
         await FirebaseAuthService.addUserToFireCloud(myUser);
         // Show success alert

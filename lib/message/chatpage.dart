@@ -2,22 +2,24 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:hands_talks/Firebase_Utils/Firebase_Auth.dart';
+import 'package:hands_talks/Model/myUser.dart';
 import 'package:hands_talks/message/iconcreation.dart';
 import 'package:hands_talks/message/mesage_line.dart';
 import 'package:hands_talks/theming.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 import 'package:uuid/uuid.dart';
 import 'package:hands_talks/Firebase_Utils/firestore_messages.dart';
+import 'package:provider/provider.dart';
+
 
 
 class ChatPage extends StatefulWidget {
-  String recipentPhone;
-  String recipentName;
-  String currentUserPhone;
 
-   ChatPage({super.key,required this.currentUserPhone,required this.recipentPhone,required this.recipentName});
+  MyUser user;
+
+   ChatPage({super.key,required this.user});
   static const String routeName = "chatPage";
 
   @override
@@ -32,6 +34,9 @@ class _ChatPageState extends State<ChatPage> {
   final FirebaseAuth auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   String? chatId;
+  String? currentUserPhone;
+
+
 
 
   File? img;
@@ -56,10 +61,11 @@ class _ChatPageState extends State<ChatPage> {
 
 
     void initState() {
-    super.initState();
+      FirebaseAuthService authProvider = Provider.of<FirebaseAuthService>(context, listen: false);
+       currentUserPhone = authProvider.myUser?.phoneNumber??"";
+      super.initState();
 
     print("9999999999999999999999999999999999999");
-    print(widget.currentUserPhone);
     print("9999999999999999999999999999999999999");
 
 
@@ -67,11 +73,11 @@ class _ChatPageState extends State<ChatPage> {
   }
   Future<void> fetchChatId() async {
     String id = await FirestoreMessages.GetOrCreateChatCollection(
-        user1Phone:widget.currentUserPhone,
-       user2Phone: widget.recipentPhone
+        user1Phone:currentUserPhone??"",
+       user2Phone: widget.user.phoneNumber??""
     );
     print("-==04-053-0353-450345e0=350=353=-503503-5035");
-    print(widget.currentUserPhone);
+    print(currentUserPhone);
 
     setState(() {
       chatId = id;
@@ -86,7 +92,7 @@ class _ChatPageState extends State<ChatPage> {
         .collection('chats')
         .doc(chatId)
         .collection('messages')
-        .where('receiver', isEqualTo: widget.currentUserPhone)
+        .where('receiver', isEqualTo: currentUserPhone)
         .where('isSeenBy', isEqualTo: false) // Fetch only unseen messages
         .get()
         .then((snapshot) {
@@ -192,8 +198,8 @@ class _ChatPageState extends State<ChatPage> {
                     leading:const CircleAvatar(backgroundColor: Colors.transparent,child: Icon(Icons.account_circle_rounded,size: 50,),
                     ),
                   // ),
-                  title: Text(widget.recipentName,style: Theming.lightTheme.textTheme.titleLarge!.copyWith(fontSize: 17),),
-                  subtitle: Text(widget.recipentPhone,style: Theming.lightTheme.textTheme.bodySmall,),
+                  title: Text(widget.user.name??"",style: Theming.lightTheme.textTheme.titleLarge!.copyWith(fontSize: 17),),
+                  subtitle: Text(widget.user.phoneNumber??"",style: Theming.lightTheme.textTheme.bodySmall,),
                   trailing:Image.asset("assets/icons/Videocamera.png",),
                   ),
             ),
@@ -226,7 +232,7 @@ class _ChatPageState extends State<ChatPage> {
                     var isEdited = message['isEdited'];
                     var isSeenBy = message['isSeenBy'];
                     // var messageDate = (message['timestamp'] as Timestamp).toDate();
-                    bool isMe = messageSender == widget.currentUserPhone;
+                    bool isMe = messageSender == currentUserPhone;
 
                     var messageDate;
                     if (message['timestamp'] != null) {
@@ -340,7 +346,7 @@ class _ChatPageState extends State<ChatPage> {
                           icon: Icon(Icons.send,color: Theming.white,size: 25,),
                           onPressed:()async {
                         FirestoreMessages
-                            .sendMessage(receiver:widget.recipentPhone ,sender:widget.currentUserPhone ,text: _messageController.text.trim());
+                            .sendMessage(user:widget.user,sender:currentUserPhone??"" ,text: _messageController.text.trim());
                         _messageController.clear();
                       })),
                 ),
@@ -401,15 +407,15 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  start_record()async{
-    // to get us location for record to recording in it
-    final location = await getApplicationDocumentsDirectory();
-    String name = const Uuid().v1();
-    if(await record.hasPermission()){
-      await record.start(const RecordConfig(), path: '${location.path}$name.m4a');
-    }
-    print("Start Record");
-  }
+  // start_record()async{
+  //   // to get us location for record to recording in it
+  //   final location = await getApplicationDocumentsDirectory();
+  //   String name = const Uuid().v1();
+  //   if(await record.hasPermission()){
+  //     await record.start(const RecordConfig(), path: '${location.path}$name.m4a');
+  //   }
+  //   print("Start Record");
+  // }
   stop_record()async{
     String? finalPath = await record.stop();
     setState(() {
