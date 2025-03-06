@@ -32,7 +32,7 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
-/assets/notification_key/hands-talks-e581c-1b262605c3c1.json
+/assets/notification_key/hands-talks-e581c-c99186f07d01.json
 # Symbolication related
 app.*.symbols
 
