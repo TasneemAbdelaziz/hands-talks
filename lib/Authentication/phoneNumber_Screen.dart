@@ -177,7 +177,7 @@ class _PhoneNumberScreenState extends State<PhoneNumberScreen> {
           uId:user!.uid ,
           name: googleUser.displayName ?? "Unknown",
           email: googleUser.email,
-          phoneNumber:phoneNumber.text,
+          phoneNumber:phoneNumber.text, fcmToken: '',
         );
         await FirebaseAuthService.addUserToFireCloud(myUser);
         // Sign in with Firebase
