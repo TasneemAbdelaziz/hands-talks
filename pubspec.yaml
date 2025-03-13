@@ -113,8 +113,6 @@ flutter:
   - assets/Default_pfp.jpg
   - assets/Background.png
   - assets/logout.png
-  - assets/models/whisper.tiny.en.bin
-  - assets/models/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

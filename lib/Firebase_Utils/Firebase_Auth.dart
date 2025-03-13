@@ -224,6 +224,7 @@ class FirebaseAuthService extends ChangeNotifier{
       // Trigger the authentication flow
       final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
 
+
       // If user cancels the sign-in process
       if (googleUser == null) {
         Navigator.pop(context); // Dismiss loading alert
@@ -271,8 +272,9 @@ class FirebaseAuthService extends ChangeNotifier{
         });
       } else {
         // Navigate to PhoneNumberScreen
+        final token = await FirebaseMessaging.instance.getToken();
         Navigator.pushNamed(context, PhoneNumberScreen.routeName,
-            arguments: {"googleUser": googleUser});
+            arguments: {"googleUser": googleUser, "token": token});
 
 
       }

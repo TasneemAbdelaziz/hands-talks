@@ -21,7 +21,7 @@ class PhoneNumberScreen extends StatefulWidget {
 class _PhoneNumberScreenState extends State<PhoneNumberScreen> {
   TextEditingController phoneNumber = TextEditingController();
  var googleUser;
-
+  var token;
   // const PhoneNumberScreen({super.key});
   var formKey=GlobalKey<FormState>();
   @override
@@ -30,6 +30,8 @@ class _PhoneNumberScreenState extends State<PhoneNumberScreen> {
     super.didChangeDependencies();
     var args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
    googleUser=args!['googleUser'];
+   token=args['token'];
+
   }
   @override
   Widget build(BuildContext context) {
@@ -177,7 +179,7 @@ class _PhoneNumberScreenState extends State<PhoneNumberScreen> {
           uId:user!.uid ,
           name: googleUser.displayName ?? "Unknown",
           email: googleUser.email,
-          phoneNumber:phoneNumber.text, fcmToken: '',
+          phoneNumber:phoneNumber.text, fcmToken:token,
         );
         await FirebaseAuthService.addUserToFireCloud(myUser);
         // Sign in with Firebase
