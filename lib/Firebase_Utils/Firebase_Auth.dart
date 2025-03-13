@@ -1,6 +1,7 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:hands_talks/Authentication/Login/Login_Screen.dart';
 import 'package:hands_talks/Authentication/Register/Register_Screen.dart';
@@ -20,11 +21,37 @@ class FirebaseAuthService extends ChangeNotifier{
   MyUser? myUser;
   static final FirebaseAuth auth = FirebaseAuth.instance;
   static bool isCorrect = true;
+
   static CollectionReference<MyUser> getUserCollection() {
     return FirebaseFirestore.instance.collection('users').withConverter<MyUser>(
       fromFirestore: (snapshot, _) => MyUser.fromJson(snapshot.data()!),
       toFirestore: (MyUser, _) => MyUser.toJson(),
     );
+  }
+
+
+
+
+
+  // When the user logs in or launches the app, retrieve their FCM token and save it in Firestore under their user document.
+  static Future<void> saveFCMToken(String userId) async {
+    final token = await FirebaseMessaging.instance.getToken();
+    if (token != null) {
+      await getUserCollection().doc(userId).update({'fcmToken': token});
+    }
+  }
+
+
+  static void setupFCMTokenListener(String userId) {
+    FirebaseMessaging.instance.onTokenRefresh.listen((newToken) async {
+      await getUserCollection().doc(userId).update({'fcmToken': newToken});
+    });
+  }
+
+  // When sending a notification, retrieve the recipient's FCM token from Firestore using their userId.
+  static Future<String?> getRecipientFCMToken(String recipientId) async {
+    final doc = await getUserCollection().doc(recipientId).get();
+    return doc.data()?.fcmToken;
   }
 
   static Future<void> addUserToFireCloud(MyUser myUser) async {
@@ -83,11 +110,14 @@ class FirebaseAuthService extends ChangeNotifier{
           email: emailAddress,
           password: password,
         );
+        final token = await FirebaseMessaging.instance.getToken();
         MyUser myUser = MyUser(
             uId: credential.user?.uid ?? "",
             name: userName,
             email: emailAddress,
-            phoneNumber: phoneNumber);
+            phoneNumber: phoneNumber,
+        fcmToken: token,
+        );
         addUserToFireCloud(myUser);
         // Dismiss loading alert
         Navigator.pop(context);
@@ -149,6 +179,9 @@ class FirebaseAuthService extends ChangeNotifier{
     try {
       final credential = await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: emailAddress, password: password);
+      await saveFCMToken(credential.user!.uid);
+      setupFCMTokenListener(credential.user!.uid);
+
       QuickAlert.show(
         context: context,
         showCancelBtn: false, // No Cancel button
@@ -303,19 +336,18 @@ class FirebaseAuthService extends ChangeNotifier{
       return;
     }
     // await user.updatePhotoURL(image??"");
+    // Retrieve the current FCM token
+    final currentUserDoc = await getUserCollection().doc(user.uid).get();
+    final currentFCMToken = currentUserDoc.data()?.fcmToken;
+
     await getUserCollection().doc(user.uid).update(
         {
           'name': newName,
-
+          'fcmToken':currentFCMToken
         }
     );
     notifyListeners();
-
-
   }
-
-
-
 
 
 

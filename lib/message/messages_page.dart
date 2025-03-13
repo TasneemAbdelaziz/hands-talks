@@ -31,8 +31,9 @@ class _MessagesPageState extends State<MessagesPage> {
   String? name;
   String? uid;
   var chats = [];
+  var searchList = [];
   Message? message;
-
+  bool isSearching = false;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   @override
   void initState() {
@@ -41,23 +42,6 @@ class _MessagesPageState extends State<MessagesPage> {
 
 
 
-  // Iterable<Widget> getHistoryList(SearchController controller) {
-  //   return chats.map(
-  //         (var color) => ListTile(
-  //       leading: const Icon(Icons.history),
-  //       title: Text(color.label),
-  //       trailing: IconButton(
-  //         icon: const Icon(Icons.call_missed),
-  //         onPressed: () {
-  //           controller.text = color.label;
-  //           controller.selection = TextSelection.collapsed(
-  //             offset: controller.text.length,
-  //           );
-  //         },
-  //       ),
-  //     ),
-  //   );
-  // }
 
 
   @override
@@ -77,6 +61,7 @@ class _MessagesPageState extends State<MessagesPage> {
       print(uid);
       print(name);
       print("???????????????????????????????????");
+
     });
 
 
@@ -96,9 +81,7 @@ class _MessagesPageState extends State<MessagesPage> {
                   onTap: (){
                     Navigator.push(context,
                         CustomAnimation.createRoute(ContactsPage())
-
                     );
-
                   },
                   child: Image.asset("assets/icons/Button - Compose.png"))),
         ],
@@ -106,6 +89,40 @@ class _MessagesPageState extends State<MessagesPage> {
       body:
          Column(
           children: [
+         Padding(
+         padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: TextField(
+      onChanged: (val){
+        if(chats.contains(val)){
+          searchList.add(val);
+        }
+      },
+        onTap: (){
+          setState(() {
+            isSearching =true;
+          });
+        },
+        decoration: InputDecoration(
+          hintText: "Search By Message...",
+          hintStyle: TextStyle(color: Colors.grey[500]),
+          filled: true,
+          fillColor:Theming.searchbar, // Gray background
+          contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(30), // Rounded corners
+            borderSide: BorderSide.none, // No border
+          ),
+          prefixIcon: Icon(Icons.search, color: Colors.grey[500]),
+          suffixIcon: isSearching?InkWell(
+              onTap: (){
+                setState(() {
+                  isSearching = false;
+                });
+              },
+              child: Icon(Icons.clear,color: Colors.grey[500])):null,
+        ),
+      ),
+    ),
             Expanded(
               child:Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 5,vertical: 5),
@@ -113,7 +130,6 @@ class _MessagesPageState extends State<MessagesPage> {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Text("");
                   }
-
                   if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                     return Center(
                       child: Column(
@@ -145,7 +161,6 @@ class _MessagesPageState extends State<MessagesPage> {
                       String chatID = chat.chatId;
                       print("dgkdlgkjdfglkjdfgljdgldjfg");
                       print(chatID);
-
                       String recipientPhone = chat.users.firstWhere((phoneNumber) => phoneNumber !=currentUserPhone);
                       return FutureBuilder<QuerySnapshot>(
                         future:_firestore.collection('users').where('phoneNumber', isEqualTo: recipientPhone).get(),
@@ -172,9 +187,7 @@ class _MessagesPageState extends State<MessagesPage> {
                                 Navigator.push(
                                   context,
                                   CustomAnimation.createRoute(ChatPage(
-                                      currentUserPhone:currentUserPhone??"",
-                                      recipentPhone: user.phoneNumber??"",
-                                      recipentName:user.name??"",
+                                    user: user,
                                   ),)
                                 );
                               },
@@ -183,15 +196,9 @@ class _MessagesPageState extends State<MessagesPage> {
                           );
                         },
                       );
-
-
-
                     },
-
-
                   );
     }),
-
               ),
             ),
           ],

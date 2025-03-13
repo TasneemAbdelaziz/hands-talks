@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -8,6 +10,7 @@ import 'package:hands_talks/Firebase_Utils/Firebase_Auth.dart';
 import 'package:hands_talks/home/homepage.dart';
 import 'package:hands_talks/profile/EditInformation.dart';
 import 'package:hands_talks/profile/ProfilePage.dart';
+import 'package:hands_talks/services/messages_configrations.dart';
 import 'package:hands_talks/transition/transition.dart';
 import 'package:hands_talks/translate/speechToSign/speech_processing.dart';
 import 'package:hands_talks/translate/speechToSign/text_processing.dart';
@@ -18,12 +21,35 @@ import 'Authentication/forgot_password/forgot_password_screen.dart';
 import 'Firebase_Utils/profile_setting.dart';
 import 'firebase_options.dart';
 
+// void requestNotificationPermissions() async {
+//   FirebaseMessaging messaging = FirebaseMessaging.instance;
+//   NotificationSettings settings = await messaging.requestPermission(
+//     alert: true,
+//     badge: true,
+//     sound: true,
+//   );
+//
+//   if (settings.authorizationStatus == AuthorizationStatus.denied) {
+//     print("User denied notification permissions.");
+//   }
+// }
+final navigatorKey = GlobalKey<NavigatorState>();
+
 void main()async {
   WidgetsFlutterBinding.ensureInitialized();
   // SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
   await Firebase.initializeApp(
-
       options: DefaultFirebaseOptions.currentPlatform,);
+
+  // MessagingConfig.initFirebaseMessaging();
+
+  // FirebaseMessaging.onBackgroundMessage(MessagingConfig.messageHandler);
+
+  await MessagingConfig.initFirebaseMessaging();
+
+  // await FirebaseFirestore.instance.clearPersistence();
+
+
   runApp(
     /// Providers are above [MyApp] instead of inside it, so that tests
     /// can use [MyApp] while mocking the providers
@@ -48,6 +74,9 @@ class MyApp extends StatelessWidget {
       splitScreenMode:true,
       minTextAdapt: true,
       child: MaterialApp(
+
+        navigatorKey: navigatorKey,
+
         debugShowCheckedModeBanner: false,
         initialRoute:FirebaseAuthService.checkSignInState(),
         routes: {
