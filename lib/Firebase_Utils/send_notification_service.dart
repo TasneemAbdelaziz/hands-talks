@@ -9,7 +9,7 @@ import 'package:googleapis_auth/auth_io.dart' as auth;
 
 Future<String> getAccessToken() async {
   final jsonString = await rootBundle.loadString(
-    'assets/notification_key/hands-talks-e581c-a6586eaee0c8.json'
+    'assets/notification_key/hands-talks-e581c-1fc910a39f67.json'
   );
 
   final accountCredentials =
