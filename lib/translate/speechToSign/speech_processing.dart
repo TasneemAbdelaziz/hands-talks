@@ -3,6 +3,8 @@ import 'dart:math';
  import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hands_talks/theming.dart';
+import 'package:hands_talks/translate/speechToSign/speech_processing_logic.dart';
+import 'package:provider/provider.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 class SpeechProcessing extends StatefulWidget {
@@ -12,101 +14,9 @@ class SpeechProcessing extends StatefulWidget {
 }
 
 class SpeechProcessingState extends State<SpeechProcessing> {
-  bool isRecording = false;
-  List<double> waveformValues = List.generate(50, (index) => 0);
-  List<double> waveformValuesLine = List.generate(50, (index) => 0);
-  Timer? timer;
-  int elapsedSeconds = 0;
-  Timer? _waveformTimer;
-  late stt.SpeechToText _speech;
-  String _lastWords = '';
-
-  @override
-  void initState() {
-    super.initState();
-    _speech = stt.SpeechToText();
-
-  }
-
-  void _listen() async {
-    // if (_speech.isListening) {
-    //   await _speech.stop(); // Ensure it stops before restarting
-    // }
-
-    bool available = await _speech.initialize(
-      onStatus: (val) {
-        print('onStatus: $val');
-        if (val == "done" || val == "notListening") {
-          _restartListening();
-        }
-      },
-      onError: (val) {
-        print('onError: $val');
-        CircularProgressIndicator();
-        _restartListening();
-      },
-    );
-
-    if (available) {
-      isRecording = true;
-      _speech.listen(
-        localeId: 'ar', // Arabic language
-        onResult: (val) => setState(() {
-          _lastWords = val.recognizedWords;
-        }),
-      );
-    }
-  }
-
-  void _restartListening() {
-    if (!_speech.isListening && isRecording == true) {
-      print("Restarting listening...");
-      _listen();
-    }
-  }
-
-  void _startWaveformAnimation() {
-    _waveformTimer = Timer.periodic(Duration(milliseconds: 300), (timer) {
-      setState(() {
-        waveformValues = List.generate(10, (index) => Random().nextDouble());
-        waveformValuesLine =
-            List.generate(50, (index) => Random().nextDouble());
-      });
-    });
-  }
-
-  ///stop recording
-  Future<void> stopRecording() async {
-    await _speech.stop();
-    setState(() {
-      isRecording = false;
-      timer!.cancel();
-      _waveformTimer?.cancel();
-    });
-  }
-
-  /// Delete recording
-  Future<void> deleteRecording() async {
-    await stopRecording();
-    setState(() {
-      waveformValues = [];
-      elapsedSeconds = 0;
-      _lastWords = ''; // Clear recognized words
-      _waveformTimer?.cancel();
-      waveformValues = List.generate(10, (index) => 0); // Reset waveform
-      waveformValuesLine = List.generate(50, (index) => 0); // Reset waveform
-    });
-  }
-
-  @override
-  void dispose() {
-    timer?.cancel();
-    super.dispose();
-    _waveformTimer?.cancel();
-  }
-
   @override
   Widget build(BuildContext context) {
+    var speechProcessingLogicProvider = Provider.of<SpeechProcessingLogic>(context);
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -130,7 +40,7 @@ class SpeechProcessingState extends State<SpeechProcessing> {
               children: [
                 CustomPaint(
                   painter: CurvedWaveformPainter(
-                      waveform: waveformValues,
+                      waveform: speechProcessingLogicProvider.waveformValues,
                       amplitudes: 500,
                       colorWave: Theming.searchbar),
                   child: Container(
@@ -140,7 +50,7 @@ class SpeechProcessingState extends State<SpeechProcessing> {
                 ),
                 CustomPaint(
                   painter: CurvedWaveformPainter(
-                      waveform: waveformValues,
+                      waveform: speechProcessingLogicProvider.waveformValues,
                       amplitudes: 300,
                       colorWave: Colors.grey),
                   child: Container(
@@ -150,7 +60,7 @@ class SpeechProcessingState extends State<SpeechProcessing> {
                 ),
                 CustomPaint(
                   painter: CurvedWaveformPainter(
-                      waveform: waveformValues,
+                      waveform: speechProcessingLogicProvider.waveformValues,
                       amplitudes: 100,
                       colorWave: Colors.black),
                   child: Container(
@@ -166,7 +76,7 @@ class SpeechProcessingState extends State<SpeechProcessing> {
               children: [
                 SizedBox(height: 150.h),
                 Text(
-                    "${(elapsedSeconds ~/ 60).toString().padLeft(2, '0')}:${(elapsedSeconds % 60).toString().padLeft(2, '0')}",
+                    "${(speechProcessingLogicProvider.elapsedSeconds ~/ 60).toString().padLeft(2, '0')}:${(speechProcessingLogicProvider.elapsedSeconds % 60).toString().padLeft(2, '0')}",
                   style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
@@ -191,16 +101,10 @@ class SpeechProcessingState extends State<SpeechProcessing> {
                     child: CustomPaint(
                       size: Size(MediaQuery.of(context).size.width * 0.8,
                           50), // Adjust size as needed
-                      painter: WaveformPainter(waveformValuesLine),
+                      painter: WaveformPainter(speechProcessingLogicProvider.waveformValuesLine),
                     )),
                 // Display recognized text
-                Padding(
-                  padding: EdgeInsets.all(20),
-                  child: Text(
-                    _lastWords,
-                    style: TextStyle(fontSize: 16, color: Colors.black),
-                  ),
-                ),
+
                 Padding(
                   padding: EdgeInsets.all(20),
                   child: Row(
@@ -209,27 +113,27 @@ class SpeechProcessingState extends State<SpeechProcessing> {
                       IconButton(
                         icon: Icon(Icons.delete_outline, color: Colors.red),
                         onPressed: () {
-                          deleteRecording();
+                          speechProcessingLogicProvider.deleteRecording();
                         },
                         iconSize: 30,
                       ),
                       IconButton(
                         onPressed: () async {
-                          if (isRecording == true) {
-                            await stopRecording();
+                          if (speechProcessingLogicProvider.isRecording == true) {
+                            await speechProcessingLogicProvider.stopRecording();
                           } else {
-                            _listen();
-                            _startWaveformAnimation();
-                            timer = Timer.periodic(const Duration(seconds: 1),
+                            speechProcessingLogicProvider.listen();
+                            speechProcessingLogicProvider.startWaveformAnimation();
+                            speechProcessingLogicProvider.timer = Timer.periodic(const Duration(seconds: 1),
                                 (timer) {
                               setState(() {
-                                elapsedSeconds++;
+                                speechProcessingLogicProvider.elapsedSeconds++;
                               });
                             });
                           }
                         },
                         icon: Icon(
-                          isRecording ? Icons.stop : Icons.mic,
+                          speechProcessingLogicProvider.isRecording ? Icons.stop : Icons.mic,
                         ),
                         color: Theming.primary,
                         iconSize: 50,
@@ -239,8 +143,8 @@ class SpeechProcessingState extends State<SpeechProcessing> {
                         onPressed: () {
                           Navigator.pushNamed(context, 'TextProcessing',
                               arguments: {
-                                "waveformValues": waveformValuesLine,
-                                "lastWords": _lastWords,
+                                "waveformValues": speechProcessingLogicProvider.waveformValuesLine,
+                                "lastWords": speechProcessingLogicProvider.lastWords.join(', '),
                               });
                         },
                         iconSize: 30,

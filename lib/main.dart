@@ -13,6 +13,7 @@ import 'package:hands_talks/profile/ProfilePage.dart';
 import 'package:hands_talks/services/messages_configrations.dart';
 import 'package:hands_talks/transition/transition.dart';
 import 'package:hands_talks/translate/speechToSign/speech_processing.dart';
+import 'package:hands_talks/translate/speechToSign/speech_processing_logic.dart';
 import 'package:hands_talks/translate/speechToSign/text_processing.dart';
 import 'package:hands_talks/translate/translatepage.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -57,6 +58,7 @@ void main()async {
       providers: [
         ChangeNotifierProvider(create: (_) =>FirebaseAuthService() ),
         ChangeNotifierProvider(create: (context) => ProfileSetting()),
+        ChangeNotifierProvider(create: (context) => SpeechProcessingLogic()),
       ],
       child: const MyApp(),
     ),

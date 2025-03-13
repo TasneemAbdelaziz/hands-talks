@@ -49,11 +49,24 @@ class _ContactsPageState extends State<ContactsPage> {
     });
   }
 
+
+  String normalizePhoneNumber(String phoneNumber) {
+    phoneNumber = phoneNumber.trim();
+
+    // Convert +20 to 0 (Egyptian numbers)
+    if (phoneNumber.startsWith('+20')) {
+      phoneNumber = '0' + phoneNumber.substring(3);
+    }
+
+    // Remove all non-numeric characters
+    return phoneNumber.replaceAll(RegExp(r'\D'), '');
+  }
+
   Future<void> fetchAppUsers() async {
     QuerySnapshot usersSnapshot = await _firestore.collection('users').get();
 
     Set<String> firebaseUsers = usersSnapshot.docs
-        .map((doc) => doc['phoneNumber'] as String)
+        .map((doc) => normalizePhoneNumber(doc['phoneNumber'] as String))
         .toSet();
 
     setState(() => appUsers = firebaseUsers);
@@ -66,13 +79,14 @@ class _ContactsPageState extends State<ContactsPage> {
       List<Contact> phoneContacts =
       await FlutterContacts.getContacts(withProperties: true);
 
-      phoneContacts.removeWhere((contact) =>
-      contact.phones.isNotEmpty &&
-          contact.phones.first.number == currentUserPhone);
+      // phoneContacts.removeWhere((contact) =>
+      // contact.phones.isNotEmpty &&
+      //     normalizePhoneNumber(contact.phones.first.number) == currentUserPhone);
 
       phoneContacts.sort((a, b) {
-        bool isAAppUser = appUsers.contains(a.phones.isNotEmpty ? a.phones.first.number : "");
-        bool isBAppUser = appUsers.contains(b.phones.isNotEmpty ? b.phones.first.number : "");
+
+        bool isAAppUser = appUsers.contains(a.phones.isNotEmpty ? normalizePhoneNumber(a.phones.first.number) : "");
+        bool isBAppUser = appUsers.contains(b.phones.isNotEmpty ? normalizePhoneNumber(b.phones.first.number) : "");
 
         if (isAAppUser && !isBAppUser) return -1;
         if (!isAAppUser && isBAppUser) return 1;
@@ -140,7 +154,7 @@ class _ContactsPageState extends State<ContactsPage> {
         itemBuilder: (context, index) {
           final contact = isSearching?searchList[index]:contacts[index];
           final phoneNumber =
-          contact.phones.isNotEmpty ? contact.phones.first.number : "";
+          contact.phones.isNotEmpty ? normalizePhoneNumber(contact.phones.first.number) : "";
 
           bool isAppUser = appUsers.contains(phoneNumber);
 
