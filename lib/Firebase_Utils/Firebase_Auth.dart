@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -15,9 +13,7 @@ import 'package:hands_talks/transition/transition.dart';
 import 'package:provider/provider.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'dart:io';
+
 class FirebaseAuthService extends ChangeNotifier{
   MyUser? myUser;
   static final FirebaseAuth auth = FirebaseAuth.instance;
@@ -29,10 +25,6 @@ class FirebaseAuthService extends ChangeNotifier{
       toFirestore: (MyUser, _) => MyUser.toJson(),
     );
   }
-
-
-
-
 
   // When the user logs in or launches the app, retrieve their FCM token and save it in Firestore under their user document.
   static Future<void> saveFCMToken(String userId) async {
@@ -79,10 +71,6 @@ class FirebaseAuthService extends ChangeNotifier{
     }
     return false;
   }
-
-
-
-
 
   static Future<void> registerWithEmailAndPassword(
       {required String emailAddress,

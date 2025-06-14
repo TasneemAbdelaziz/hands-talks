@@ -17,11 +17,14 @@ class IconCreation extends StatelessWidget {
             backgroundColor: Colors.transparent,
             radius: 30,
             child: Container(
+                width: 40,
+                height: 40,
                 decoration: BoxDecoration(
+
                   shape: BoxShape.circle,
                   gradient: Theming.icons,
                 ),
-                child: IconButton(onPressed: (){}, icon: Icon(icon,color: Theming.white,size: 30,))),
+                child: Icon(icon,color: Theming.white,size: 30,)),
           ),
         ),
         Text(text),
