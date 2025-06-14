@@ -10,6 +10,7 @@ import 'package:hands_talks/Authentication/phoneNumber_Screen.dart';
 import 'package:hands_talks/Model/myUser.dart';
 import 'package:hands_talks/home/homepage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:hands_talks/message/call_services.dart';
 import 'package:hands_talks/theming.dart';
 import 'package:hands_talks/transition/transition.dart';
 import 'package:provider/provider.dart';
@@ -120,6 +121,8 @@ class FirebaseAuthService extends ChangeNotifier{
         fcmToken: token,
         );
         addUserToFireCloud(myUser);
+
+
         // Dismiss loading alert
         Navigator.pop(context);
 
@@ -192,6 +195,7 @@ class FirebaseAuthService extends ChangeNotifier{
         text: 'Welcome back, ${credential.user?.displayName ?? ""}!',
         autoCloseDuration: Duration(seconds: 3),
       );
+
       // Navigate to LoginScreen after the timer
       Future.delayed(Duration(seconds: 3), () {
         Navigator.pushReplacementNamed(context, Translation.routeName);
@@ -225,6 +229,7 @@ class FirebaseAuthService extends ChangeNotifier{
       final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
 
 
+
       // If user cancels the sign-in process
       if (googleUser == null) {
         Navigator.pop(context); // Dismiss loading alert
@@ -254,6 +259,7 @@ class FirebaseAuthService extends ChangeNotifier{
 
         // Sign in with Firebase
         await auth.signInWithCredential(credential);
+
 
         // Show success alert
         QuickAlert.show(
@@ -298,6 +304,8 @@ class FirebaseAuthService extends ChangeNotifier{
   static checkSignInState() {
     User? user = auth.currentUser;
     if (user != null) {
+      print("User is already signed in.${user.uid}");
+
       return Translation
           .routeName; // Replace '/home' with your home screen route
     } else {
@@ -308,6 +316,7 @@ class FirebaseAuthService extends ChangeNotifier{
     try {
       await GoogleSignIn().signOut();
       await auth.signOut();
+      CallService.onUserLogout();
 
       myUser = null; // ✅ Clear user data after logout
       notifyListeners();

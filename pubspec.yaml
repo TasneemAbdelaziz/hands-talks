@@ -81,6 +81,9 @@ dependencies:
 #  googleapis: ^13.2.0
   googleapis_auth: ^1.6.0
   firebase_analytics: ^11.4.4
+  zego_uikit: ^2.28.0
+  zego_uikit_prebuilt_call: ^4.17.2
+  zego_uikit_signaling_plugin: ^2.8.13
 #  livespeechtotext: ^1.0.9
 #  curved_labeled_navigation_bar: ^2.0.5
 #  curved_navigation_bar_with_label: ^2.1.4

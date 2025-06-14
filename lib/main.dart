@@ -18,6 +18,10 @@ import 'package:hands_talks/translate/speechToSign/text_processing.dart';
 import 'package:hands_talks/translate/translatepage.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
+import 'package:zego_uikit/zego_uikit.dart';
+import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
+import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
+
 import 'Authentication/forgot_password/forgot_password_screen.dart';
 import 'Firebase_Utils/profile_setting.dart';
 import 'firebase_options.dart';
@@ -38,6 +42,15 @@ final navigatorKey = GlobalKey<NavigatorState>();
 
 void main()async {
   WidgetsFlutterBinding.ensureInitialized();
+  /// 1.1.2: set navigator key to ZegoUIKitPrebuiltCallInvitationService
+  ZegoUIKitPrebuiltCallInvitationService().setNavigatorKey(navigatorKey);
+
+  // call the useSystemCallingUI
+  ZegoUIKit().initLog().then((value) {
+    ZegoUIKitPrebuiltCallInvitationService().useSystemCallingUI(
+      [ZegoUIKitSignalingPlugin()],
+    );});
+
   // SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
   await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,);

@@ -6,6 +6,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:hands_talks/Authentication/Widgets/Text_Field.dart';
 import 'package:hands_talks/Firebase_Utils/Firebase_Auth.dart';
 import 'package:hands_talks/Model/myUser.dart';
+import 'package:hands_talks/message/call_services.dart';
 import 'package:hands_talks/theming.dart';
 import 'package:quickalert/quickalert.dart';
 
@@ -200,6 +201,7 @@ class _PhoneNumberScreenState extends State<PhoneNumberScreen> {
         });
 
         // Navigate to HomePage after the timer
+        CallService.onUserLogin(id: myUser.uId, name:myUser.name);
         Future.delayed(Duration(seconds: 3), () {
           Navigator.pushReplacementNamed(context, Translation.routeName);
         });
