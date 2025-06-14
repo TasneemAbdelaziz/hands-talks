@@ -98,13 +98,12 @@ class _TextProcessingState extends State<TextProcessing> {
               right:8.w ,
               bottom:13.h ,
               top:5.h ,
-              left:81.w ,
+
             ),
             child: Text(" ${args?['lastWords'] ?? "No text detected"}",style: TextStyle(
 
               fontSize: 10.sp
-            ),),
-            alignment: Alignment.bottomRight,
+            ),textAlign:TextAlign.right,),
             decoration: BoxDecoration(
               border:
                 Border.all(),

@@ -1,10 +1,7 @@
-import 'dart:convert';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_contacts/contact.dart';
 import 'package:hands_talks/Firebase_Utils/Firebase_Auth.dart';
 import 'package:hands_talks/Firebase_Utils/profile_setting.dart';
 import 'package:hands_talks/Model/myUser.dart';
@@ -21,6 +18,8 @@ import 'package:hands_talks/Firebase_Utils/firestore_messages.dart';
 import 'package:provider/provider.dart';
 import 'package:hands_talks/Model/message.dart';
 
+import 'package:zego_uikit/zego_uikit.dart';
+import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 
 class ChatPage extends StatefulWidget {
   MyUser user;
@@ -32,7 +31,10 @@ class ChatPage extends StatefulWidget {
   State<ChatPage> createState() => _ChatPageState();
 }
 
+
+
 class _ChatPageState extends State<ChatPage> {
+  User? user = FirebaseAuth.instance.currentUser;
   final TextEditingController _messageController = TextEditingController();
   final FirebaseAuth auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -103,6 +105,35 @@ class _ChatPageState extends State<ChatPage> {
               ),
               trailing: Image.asset(
                 "assets/icons/Videocamera.png",
+              ),
+              leading: CircleAvatar(
+                backgroundColor: Colors.transparent,
+                child: Icon(
+                  Icons.account_circle_rounded,
+                  size: 50,
+                ),
+              ),
+              // ),
+              title: Text(
+                widget.user.name ?? "",
+                style: Theming.lightTheme.textTheme.titleLarge!
+                    .copyWith(fontSize: 17),
+              ),
+              subtitle: Text(
+                widget.user.phoneNumber ?? "",
+                style: Theming.lightTheme.textTheme.bodySmall,
+              ),
+              trailing: ZegoSendCallInvitationButton(
+                iconSize: Size(40, 40),
+                buttonSize: Size(50, 50),
+                isVideoCall: true,
+                resourceID: "HandsTalks",
+                invitees: [
+                  ZegoUIKitUser(
+                    id: widget.user.uId ?? "", // must match login id
+                    name: widget.user.name ?? "",
+                  ),
+                ],
               ),
             ),
           ),
@@ -248,6 +279,8 @@ class _ChatPageState extends State<ChatPage> {
         ],
       ),
     );
+
+
   }
 
   Widget bottomsheet() {

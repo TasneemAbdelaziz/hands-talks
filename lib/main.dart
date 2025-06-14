@@ -13,10 +13,15 @@ import 'package:hands_talks/profile/ProfilePage.dart';
 import 'package:hands_talks/services/messages_configrations.dart';
 import 'package:hands_talks/transition/transition.dart';
 import 'package:hands_talks/translate/speechToSign/speech_processing.dart';
+import 'package:hands_talks/translate/speechToSign/speech_processing_logic.dart';
 import 'package:hands_talks/translate/speechToSign/text_processing.dart';
 import 'package:hands_talks/translate/translatepage.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
+import 'package:zego_uikit/zego_uikit.dart';
+import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
+import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
+
 import 'Authentication/forgot_password/forgot_password_screen.dart';
 import 'Firebase_Utils/profile_setting.dart';
 import 'firebase_options.dart';
@@ -37,6 +42,15 @@ final navigatorKey = GlobalKey<NavigatorState>();
 
 void main()async {
   WidgetsFlutterBinding.ensureInitialized();
+  /// 1.1.2: set navigator key to ZegoUIKitPrebuiltCallInvitationService
+  ZegoUIKitPrebuiltCallInvitationService().setNavigatorKey(navigatorKey);
+
+  // call the useSystemCallingUI
+  ZegoUIKit().initLog().then((value) {
+    ZegoUIKitPrebuiltCallInvitationService().useSystemCallingUI(
+      [ZegoUIKitSignalingPlugin()],
+    );});
+
   // SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
   await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,);
@@ -57,6 +71,7 @@ void main()async {
       providers: [
         ChangeNotifierProvider(create: (_) =>FirebaseAuthService() ),
         ChangeNotifierProvider(create: (context) => ProfileSetting()),
+        ChangeNotifierProvider(create: (context) => SpeechProcessingLogic()),
       ],
       child: const MyApp(),
     ),
