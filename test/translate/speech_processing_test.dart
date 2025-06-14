@@ -15,91 +15,93 @@ void main() {
     logic = SpeechProcessingLogic(speechToText: mockSpeech); // inject the mock
   });
 
+  group(
+    "SpeechProcessingLogic",
+    () {
+      test('listen() starts speech recognition when available', () async {
+        when(mockSpeech.initialize(
+          onStatus: anyNamed('onStatus'),
+          onError: anyNamed('onError'),
+        )).thenAnswer((_) async => true);
+        when(mockSpeech.listen(
+          onResult: anyNamed('onResult'),
+          localeId: anyNamed('localeId'),
+        )).thenAnswer((_) async {});
 
-group("SpeechProcessingLogic", () {
-  test('listen() starts speech recognition when available', () async {
-    when(mockSpeech.initialize(
-      onStatus: anyNamed('onStatus'),
-      onError: anyNamed('onError'),
-    )).thenAnswer((_) async => true);
-    when(mockSpeech.listen(
-      onResult: anyNamed('onResult'),
-      localeId: anyNamed('localeId'),
+        await logic.listen();
 
-    )).thenAnswer((_) async {});
+        expect(logic.isRecording, true);
 
-    await logic.listen();
+        verify(mockSpeech.listen(
+          localeId: anyNamed('localeId'),
+          onResult: anyNamed('onResult'),
+        )).called(1);
+      });
 
-    expect(logic.isRecording, true);
+      test(
+          'restartListening() calls listen() if not listening and isRecording = true',
+          () async {
+        logic.isRecording = true;
 
-    verify(mockSpeech.listen(
-      localeId: anyNamed('localeId'),
-      onResult: anyNamed('onResult'),
-    )).called(1);
-  });
+        when(mockSpeech.isListening).thenReturn(false);
 
+        when(mockSpeech.initialize(
+          onStatus: anyNamed('onStatus'),
+          onError: anyNamed('onError'),
+        )).thenAnswer((_) async => true);
 
-  test(
-      'restartListening() calls listen() if not listening and isRecording = true', () async {
-    logic.isRecording = true;
+        when(mockSpeech.listen(
+          localeId: anyNamed('localeId'),
+          onResult: anyNamed('onResult'),
+        )).thenAnswer((_) async {
+          return Future.value(); // Ensures Future<void>
+        });
 
-    when(mockSpeech.isListening).thenReturn(false);
+        await logic.restartListening();
 
-    when(mockSpeech.initialize(
-      onStatus: anyNamed('onStatus'),
-      onError: anyNamed('onError'),
-    )).thenAnswer((_) async => true);
+        verify(mockSpeech.listen(
+          localeId: anyNamed('localeId'),
+          onResult: anyNamed('onResult'),
+        )).called(1);
+      });
 
-    when(mockSpeech.listen(
-      localeId: anyNamed('localeId'),
-      onResult: anyNamed('onResult'),
-    )).thenAnswer((_) async {
-      return Future.value(); // Ensures Future<void>
-    });
+      test(
+          'stopRecording() stops speech, cancels timers, and sets isRecording = false',
+          () async {
+        logic.timer = Timer(Duration(seconds: 1), () {});
+        logic.waveformTimer = Timer(Duration(seconds: 1), () {});
+        logic.isRecording = true;
 
-    await logic.restartListening();
+        when(mockSpeech.stop()).thenAnswer((_) async => Future.value());
 
-    verify(mockSpeech.listen(
-      localeId: anyNamed('localeId'),
-      onResult: anyNamed('onResult'),
-    )).called(1);
-  });
+        await logic.stopRecording();
 
-  test(
-      'stopRecording() stops speech, cancels timers, and sets isRecording = false', () async {
-    logic.timer = Timer(Duration(seconds: 1), () {});
-    logic.waveformTimer = Timer(Duration(seconds: 1), () {});
-    logic.isRecording = true;
+        expect(logic.isRecording, false);
+        expect(logic.timer?.isActive ?? false, false);
+        expect(logic.waveformTimer?.isActive ?? false, false);
+      });
 
-    when(mockSpeech.stop()).thenAnswer((_) async => Future.value());
+      test('deleteRecording() resets state and clears waveform and words',
+          () async {
+        logic.lastWords = ['test'];
+        logic.waveformValues = [0.5];
+        logic.waveformValuesLine = [0.3];
+        logic.elapsedSeconds = 10;
+        logic.isRecording = true;
 
-    await logic.stopRecording();
+        logic.timer = Timer(Duration(seconds: 1), () {});
+        logic.waveformTimer = Timer(Duration(seconds: 1), () {});
 
-    expect(logic.isRecording, false);
-    expect(logic.timer?.isActive ?? false, false);
-    expect(logic.waveformTimer?.isActive ?? false, false);
-  });
+        when(mockSpeech.stop()).thenAnswer((_) async => Future.value());
 
-  test(
-      'deleteRecording() resets state and clears waveform and words', () async {
-    logic.lastWords = ['test'];
-    logic.waveformValues = [0.5];
-    logic.waveformValuesLine = [0.3];
-    logic.elapsedSeconds = 10;
-    logic.isRecording = true;
+        await logic.deleteRecording();
 
-    logic.timer = Timer(Duration(seconds: 1), () {});
-    logic.waveformTimer = Timer(Duration(seconds: 1), () {});
-
-    when(mockSpeech.stop()).thenAnswer((_) async => Future.value());
-
-    await logic.deleteRecording();
-
-    expect(logic.isRecording, false);
-    expect(logic.lastWords.isEmpty, true);
-    expect(logic.waveformValues.every((v) => v == 0), true);
-    expect(logic.waveformValuesLine.every((v) => v == 0), true);
-    expect(logic.elapsedSeconds, 0);
-  });
-},);
+        expect(logic.isRecording, false);
+        expect(logic.lastWords.isEmpty, true);
+        expect(logic.waveformValues.every((v) => v == 0), true);
+        expect(logic.waveformValuesLine.every((v) => v == 0), true);
+        expect(logic.elapsedSeconds, 0);
+      });
+    },
+  );
 }

@@ -12,6 +12,7 @@ import 'package:hands_talks/profile/EditInformation.dart';
 import 'package:hands_talks/profile/ProfilePage.dart';
 import 'package:hands_talks/services/messages_configrations.dart';
 import 'package:hands_talks/transition/transition.dart';
+import 'package:hands_talks/translate/sign_to_text/Demo_sign_to_text.dart';
 import 'package:hands_talks/translate/speechToSign/speech_processing.dart';
 import 'package:hands_talks/translate/speechToSign/speech_processing_logic.dart';
 import 'package:hands_talks/translate/speechToSign/text_processing.dart';
@@ -103,6 +104,7 @@ class MyApp extends StatelessWidget {
           Translation.routeName: (context) => Translation(),
           HomePage.routeName: (context) => HomePage(),
           TranslatePage.routeName: (context) => TranslatePage(),
+          SignToTextProcessing.routeName:(context)=> SignToTextProcessing(),
           SpeechProcessing.routeName:(context)=> SpeechProcessing(),
           TextProcessing.routeName:(context)=> TextProcessing(),
          ProfilePage.routeName:(context)=> ProfilePage(),

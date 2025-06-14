@@ -33,7 +33,9 @@ class TranslatePage extends StatelessWidget {
                             hintStyle: TextStyle(
                                 color: Color(0xff495466), fontSize: 24),
                             suffixIcon: IconButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                Navigator.pushNamed(context, 'SignToTextProcessing');
+                              },
                               icon: Icon(Icons.camera_alt_rounded),
                               color: Color(0xff495466),
                               iconSize: 45,

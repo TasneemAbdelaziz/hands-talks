@@ -84,6 +84,10 @@ dependencies:
   zego_uikit: ^2.28.0
   zego_uikit_prebuilt_call: ^4.17.2
   zego_uikit_signaling_plugin: ^2.8.13
+  camera: ^0.10.5+4
+  image: ^4.5.4
+  socket_io_client: ^3.1.2
+  flutter_image_compress: ^2.4.0
 #  livespeechtotext: ^1.0.9
 #  curved_labeled_navigation_bar: ^2.0.5
 #  curved_navigation_bar_with_label: ^2.1.4
@@ -119,6 +123,7 @@ flutter:
   - assets/Default_pfp.jpg
   - assets/Background.png
   - assets/logout.png
+#  - assets/models/action3.tflite
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

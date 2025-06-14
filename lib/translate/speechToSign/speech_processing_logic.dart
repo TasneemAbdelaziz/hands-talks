@@ -6,22 +6,19 @@ import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:speech_to_text/speech_to_text.dart';
 
 class SpeechProcessingLogic extends ChangeNotifier {
-
-
-
   bool isRecording = false;
   List<double> waveformValues = List.generate(50, (index) => 0);
   List<double> waveformValuesLine = List.generate(50, (index) => 0);
   Timer? timer;
   int elapsedSeconds = 0;
   Timer? waveformTimer;
-  late stt.SpeechToText speech  = stt.SpeechToText();
+  late stt.SpeechToText speech = stt.SpeechToText();
   List<String> lastWords = [];
   SpeechProcessingLogic({SpeechToText? speechToText}) {
     speech = speechToText ?? SpeechToText();
   }
 
-   listen() async {
+  listen() async {
     bool available = await speech.initialize(
       onStatus: (val) {
         print('onStatus: $val');
@@ -44,14 +41,13 @@ class SpeechProcessingLogic extends ChangeNotifier {
           onResult: (val) {
             if (val.finalResult) {
               lastWords.add(val.recognizedWords);
-
             }
             notifyListeners();
           });
     }
   }
 
-   restartListening() {
+  restartListening() {
     if (!speech.isListening && isRecording == true) {
       debugPrint("Restarting listening...");
       listen();
@@ -89,3 +85,7 @@ class SpeechProcessingLogic extends ChangeNotifier {
     notifyListeners();
   }
 }
+
+
+
+
