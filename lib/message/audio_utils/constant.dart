@@ -1,1 +1,0 @@
-const SecretApiKey = "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";
