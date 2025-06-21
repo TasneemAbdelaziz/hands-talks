@@ -44,7 +44,7 @@ final navigatorKey = GlobalKey<NavigatorState>();
 void main()async {
   WidgetsFlutterBinding.ensureInitialized();
   /// 1.1.2: set navigator key to ZegoUIKitPrebuiltCallInvitationService
-  // ZegoUIKitPrebuiltCallInvitationService().setNavigatorKey(navigatorKey);
+  ZegoUIKitPrebuiltCallInvitationService().setNavigatorKey(navigatorKey);
 
   // call the useSystemCallingUI
   ZegoUIKit().initLog().then((value) {
@@ -52,7 +52,7 @@ void main()async {
       [ZegoUIKitSignalingPlugin()],
     );});
 
-  // SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
   await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,);
 
