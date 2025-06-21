@@ -16,6 +16,7 @@ import 'package:video_thumbnail/video_thumbnail.dart';
 import 'package:voice_note_kit/player/audio_player_widget.dart';
 import 'package:voice_note_kit/player/player_enums/player_enums.dart';
 
+
 class MessageLine extends StatelessWidget {
   String message;
   DateTime time;
@@ -63,15 +64,16 @@ class MessageLine extends StatelessWidget {
           children: [
             if (type == MessageType.image) _buildImageWidget(message),
             if (type == MessageType.audio) _buildAudioWidget(message),
-            if (type == MessageType.document) _buildDocumentWidget(),
+            // if (type == MessageType.document) _buildDocumentWidget(),
             if (type == MessageType.video) _buildVideoWidget(message),
-            if (type == MessageType.contact) _buildContactWidget(message),
+            // if (type == MessageType.contact) _buildContactWidget(message),
             if (type == MessageType.text)
               Text(
                 message,
                 style: TextStyle(
                     fontSize: 16, color: isMe ? Colors.white : Colors.black),
               ),
+
             SizedBox(height: 5),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,

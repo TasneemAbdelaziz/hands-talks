@@ -19,23 +19,6 @@ Future<String> getDownloadUrl(String url) async {
   }
 }
 
-// Future<String> getDownloadUrl(String url) async {
-//   try {
-//     // Extract filename from URL (e.g., "posts_images/1745065624689_images.jpeg")
-//     final uri = Uri.parse(url);
-//     final pathSegments = uri.pathSegments; // ["v0", "b", "hands-talks-e581c.appspot.com", "o", "posts_images%2F1745065624689_images.jpeg"]
-//     final encodedFilename = pathSegments.last; // "posts_images%2F1745065624689_images.jpeg"
-//     var filename = Uri.decodeComponent(encodedFilename); // "posts_images/1745065624689_images.jpeg"
-//     // Get download URL (redundant if `url` is already public)
-//     return url; // If the URL is public, just return it directly.
-//   } catch (e) {
-//     return 'Failed to get image URL: $e';
-//   }
-// }
-
-// void main() {
-//   runApp(const HomePage());
-// }
 
 class HomePage extends StatelessWidget {
   static const String routeName = "HomePage";
@@ -154,8 +137,16 @@ class _FeedsPageState extends State<FeedsPage> {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance.collection('posts').snapshots(),
       builder: (context, snapshot) {
+
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.hasError) {
+          if (snapshot.error.toString().contains('SocketException')) {
+            return const Center(child: Text('No Internet Connection'));
+          } else {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
         }
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
           return const Center(child: Text("No posts found"));

@@ -304,7 +304,7 @@ class FirebaseAuthService extends ChangeNotifier{
     try {
       await GoogleSignIn().signOut();
       await auth.signOut();
-      CallService.onUserLogout();
+      // CallService.onUserLogout();
 
       myUser = null; // ✅ Clear user data after logout
       notifyListeners();

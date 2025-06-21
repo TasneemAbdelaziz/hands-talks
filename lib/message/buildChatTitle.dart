@@ -6,6 +6,7 @@ import 'package:hands_talks/Firebase_Utils/firestore_messages.dart';
 import 'package:hands_talks/Firebase_Utils/profile_setting.dart';
 import 'package:hands_talks/Model/message.dart';
 import 'package:hands_talks/Model/myUser.dart';
+import 'package:hands_talks/message/Loading_Shimmer/loading_image_chat.dart';
 import 'package:hands_talks/theming.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -44,20 +45,30 @@ class _BuildchatTitleState extends State<BuildchatTitle> {
 
   @override
   Widget build(BuildContext context) {
-    final profile = Provider.of<ProfileSetting>(context);
-
-
-
+    final profile = Provider.of<ProfileSetting>(context, listen: false);
 
     return StreamBuilder(stream: FirestoreMessages.getLastMessage(widget.chatId), builder: (context,snapshot){
       MyMessage? lastMessage = snapshot.data;
       return ListTile(
         leading:  Padding(
           padding: EdgeInsets.only(right: 0),
-          child: CircleAvatar(backgroundColor: Colors.transparent,
-            backgroundImage:profile.profileImageUrl != null
-              ? NetworkImage(profile.profileImageUrl!):AssetImage("assets/Default_pfp.jpg") as ImageProvider ,
-          ),
+          child: FutureBuilder<String?>(
+    future: profile
+        .getUserImageUrl(widget.user.uId ?? ""),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return LoadingImageChat(); // Optional: Show loading
+      }
+      final imageUrl = snapshot.data;
+      print("IMAGEURL$imageUrl");
+      return CircleAvatar(
+        backgroundImage: imageUrl != null
+            ? NetworkImage(imageUrl)
+            : AssetImage("assets/Default_pfp.jpg") as ImageProvider,
+      );
+    }
+    ),
+
         ),
 
         title: Text(widget.user.name??"",

@@ -9,7 +9,7 @@ import 'package:hands_talks/animation_routing/animation.dart';
 import 'package:hands_talks/message/ContactsPage.dart';
 import 'package:hands_talks/message/buildChatTitle.dart';
 import 'package:hands_talks/message/chatpage.dart';
-import 'package:hands_talks/message/loading_chats.dart';
+import 'package:hands_talks/message/Loading_Shimmer/loading_chats.dart';
 import 'package:hands_talks/theming.dart';
 import 'package:provider/provider.dart';
 class MessagesPage extends StatefulWidget {
@@ -43,7 +43,7 @@ class _MessagesPageState extends State<MessagesPage> {
     super.didChangeDependencies();
     Future.delayed(Duration.zero,()async{
       authProvider = Provider.of<FirebaseAuthService>(context, listen: false);
-      await authProvider.getUserProfileInfo();
+      // await authProvider.getUserProfileInfo();
       setState(() {
         currentUserPhone = authProvider.myUser?.phoneNumber ?? "";
         uid = authProvider.myUser?.uId ?? "";

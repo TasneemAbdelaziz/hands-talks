@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -18,8 +17,10 @@ import 'package:hands_talks/Firebase_Utils/firestore_messages.dart';
 import 'package:provider/provider.dart';
 import 'package:hands_talks/Model/message.dart';
 
-import 'package:zego_uikit/zego_uikit.dart';
-import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
+import 'Loading_Shimmer/loading_image_chat.dart';
+// import 'package:zego_uikit/zego_uikit.dart';
+// import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
+
 
 class ChatPage extends StatefulWidget {
   MyUser user;
@@ -88,32 +89,37 @@ class _ChatPageState extends State<ChatPage> {
             color: Theming.white,
             elevation: 0,
             child: ListTile(
-              leading: CircleAvatar(
-                backgroundColor: Colors.transparent,
-                backgroundImage: profile.profileImageUrl != null
-                    ? NetworkImage(profile.profileImageUrl!)
-                    : AssetImage("assets/Default_pfp.jpg") as ImageProvider,
-              ),
-              title: Text(
-                widget.user.name ?? "",
-                style: Theming.lightTheme.textTheme.titleLarge!
-                    .copyWith(fontSize: 17),
-              ),
-              subtitle: Text(
-                widget.user.phoneNumber ?? "",
-                style: Theming.lightTheme.textTheme.bodySmall,
-              ),
-              trailing: Image.asset(
-                "assets/icons/Videocamera.png",
-              ),
-              leading: CircleAvatar(
-                backgroundColor: Colors.transparent,
-                child: Icon(
-                  Icons.account_circle_rounded,
-                  size: 50,
-                ),
-              ),
+              leading: FutureBuilder<String?>(
+            future: Provider.of<ProfileSetting>(context, listen: false)
+                .getUserImageUrl(widget.user.uId ?? "" ),
+      builder: (context, snapshot) {
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return LoadingImageChat(); // Optional: Show loading
+        }
+        final imageUrl = snapshot.data;
+        print("IMAGEURL$imageUrl");
+        return CircleAvatar(
+          backgroundImage: imageUrl != null
+              ? NetworkImage(imageUrl)
+              : AssetImage("assets/Default_pfp.jpg") as ImageProvider,
+        );
+      },
+    ),
+              // title: Text(
+              //   widget.user.name ?? "",
+              //   style: Theming.lightTheme.textTheme.titleLarge!
+              //       .copyWith(fontSize: 17),
               // ),
+              // subtitle: Text(
+              //   widget.user.phoneNumber ?? "",
+              //   style: Theming.lightTheme.textTheme.bodySmall,
+              // ),
+              // trailing: Image.asset(
+              //   "assets/icons/Videocamera.png",
+              // ),
+              // ),
+
               title: Text(
                 widget.user.name ?? "",
                 style: Theming.lightTheme.textTheme.titleLarge!
@@ -123,18 +129,18 @@ class _ChatPageState extends State<ChatPage> {
                 widget.user.phoneNumber ?? "",
                 style: Theming.lightTheme.textTheme.bodySmall,
               ),
-              trailing: ZegoSendCallInvitationButton(
-                iconSize: Size(40, 40),
-                buttonSize: Size(50, 50),
-                isVideoCall: true,
-                resourceID: "HandsTalks",
-                invitees: [
-                  ZegoUIKitUser(
-                    id: widget.user.uId ?? "", // must match login id
-                    name: widget.user.name ?? "",
-                  ),
-                ],
-              ),
+              // trailing: ZegoSendCallInvitationButton(
+              //   iconSize: Size(40, 40),
+              //   buttonSize: Size(50, 50),
+              //   isVideoCall: true,
+              //   resourceID: "HandsTalks",
+              //   invitees: [
+              //     ZegoUIKitUser(
+              //       id: widget.user.uId ?? "", // must match login id
+              //       name: widget.user.name ?? "",
+              //     ),
+              //   ],
+              // ),
             ),
           ),
           Expanded(
@@ -270,7 +276,9 @@ class _ChatPageState extends State<ChatPage> {
                             FirestoreMessages.sendMessage(
                                 user: widget.user, message: textMessage);
                             _messageController.clear();
-                          })),
+                          },
+                          ),
+                  ),
                 ),
                 Spacer(),
               ],
@@ -321,12 +329,15 @@ class _ChatPageState extends State<ChatPage> {
                           width: double.infinity,
                           height:  MediaQuery.of(context).size.height * 0.3,
                           child: Column(
-                            children: [
-                              Center(child: RecordHandel(user: widget.user)),
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                              Center(child:
+                              RecordHandel(user: widget.user)
+                              ),
                               Text("Long Press to Record")
                             ],
                           ))
-
                     );
                   }),
               // ---------------------

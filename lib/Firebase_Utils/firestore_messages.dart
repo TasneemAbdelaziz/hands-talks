@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/cupertino.dart';
 import 'package:path/path.dart'as p;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -36,17 +37,16 @@ class FirestoreMessages{
 
   static Future<void> sendMessage(
       {required MyUser user,required MyMessage message})async {
+    if (message.content.trim().isEmpty) {
+      print("Message content is empty - not sending");
+      return;
+    }
    var chatId =await GetOrCreateChatCollection(user1Phone: message.sender,user2Phone: user.phoneNumber??"");
 try{
   var messageRef = FirebaseFirestore.instance.collection('chats')
       .doc(chatId)
       .collection('messages')
       .doc();
-
-
-
-
-
   String? userToken;
   DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
       .collection('users')
@@ -161,7 +161,7 @@ catch(e){
 
   static Future<String> uploadAudioFile(String path) async {
     String name = p.basename(path);
-    final ref = FirebaseStorage.instance.ref("voices/$name");
+    final ref = FirebaseStorage.instance.ref("chat_audios/$name");
 
     final metadata = SettableMetadata(contentType: 'audio/m4a');
 
@@ -203,15 +203,43 @@ catch(e){
        });
  }
 
- static Future<void> deleteMessageForEveryone(String chatId, String messageId) async {
-   var messageRef = FirebaseFirestore.instance
-       .collection('chats')
-       .doc(chatId)
-       .collection('messages')
-       .doc(messageId);
 
-   await messageRef.delete();
- }
+
+  static Future<void> deleteMessageForEveryone(String chatId, String messageId) async {
+    try {
+      // 1. Get Firestore reference
+      final messageRef = FirebaseFirestore.instance
+          .collection('chats')
+          .doc(chatId)
+          .collection('messages')
+          .doc(messageId);
+
+      final message = await messageRef.get();
+      if (!message.exists) return;
+
+      // 2. Extract download URL
+      final contentUrl = message.data()?['content']?.toString();
+      if (contentUrl == null || contentUrl.isEmpty) return;
+
+      // 3. Delete from Storage (optimized path extraction)
+      try {
+        final uri = Uri.parse(contentUrl);
+        final encodedPath = uri.path.split('o/').last;
+        await FirebaseStorage.instance
+            .ref(Uri.decodeComponent(encodedPath))
+            .delete();
+      } catch (e) {
+        debugPrint('Storage deletion error: $e');
+      }
+
+      // 4. Delete from Firestore
+      await messageRef.delete();
+
+    } catch (e) {
+      debugPrint('Deletion error: $e');
+      rethrow;
+    }
+  }
 
   static Stream<MyMessage?> getLastMessage(String chatId) {
     return FirebaseFirestore.instance
