@@ -44,7 +44,7 @@ final navigatorKey = GlobalKey<NavigatorState>();
 void main()async {
   WidgetsFlutterBinding.ensureInitialized();
   /// 1.1.2: set navigator key to ZegoUIKitPrebuiltCallInvitationService
-  ZegoUIKitPrebuiltCallInvitationService().setNavigatorKey(navigatorKey);
+  // ZegoUIKitPrebuiltCallInvitationService().setNavigatorKey(navigatorKey);
 
   // call the useSystemCallingUI
   ZegoUIKit().initLog().then((value) {
@@ -109,6 +109,7 @@ class MyApp extends StatelessWidget {
           TextProcessing.routeName:(context)=> TextProcessing(),
          ProfilePage.routeName:(context)=> ProfilePage(),
           EditInformationPage.routeName: (context) => EditInformationPage(),
+
       
         },
       

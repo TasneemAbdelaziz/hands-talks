@@ -201,7 +201,7 @@ class _PhoneNumberScreenState extends State<PhoneNumberScreen> {
         });
 
         // Navigate to HomePage after the timer
-        CallService.onUserLogin(id: myUser.uId, name:myUser.name);
+        // CallService.onUserLogin(id: myUser.uId, name:myUser.name);
         Future.delayed(Duration(seconds: 3), () {
           Navigator.pushReplacementNamed(context, Translation.routeName);
         });

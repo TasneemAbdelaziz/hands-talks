@@ -110,4 +110,22 @@ class ProfileSetting extends ChangeNotifier {
     });
  notifyListeners();
   }
+
+  Future<String?> getUserImageUrl(String userId) async {
+    try {
+      DocumentSnapshot doc = await _firestore
+          .collection("users")
+          .doc(userId) // Assuming phoneNumber is the doc ID
+          .get();
+
+      if (doc.exists && doc.data() != null) {
+        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+        return data["imageUrl"];
+      }
+      return null;
+    } catch (e) {
+      print("Error fetching user image: $e");
+      return null;
+    }
+  }
 }

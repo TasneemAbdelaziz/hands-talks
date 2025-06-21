@@ -1,20 +1,26 @@
-import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hands_talks/Firebase_Utils/Firebase_Auth.dart';
+import 'package:hands_talks/Firebase_Utils/profile_setting.dart';
 import 'package:hands_talks/Model/myUser.dart';
-import 'package:hands_talks/message/call_services.dart';
-import 'package:hands_talks/message/iconcreation.dart';
+import 'package:hands_talks/message/audio_utils/record_handel.dart';
+import 'package:hands_talks/message/delete_edit_message.dart';
+import 'package:hands_talks/message/icon_creation.dart';
+import 'package:hands_talks/message/images_utils/image_functions.dart';
 import 'package:hands_talks/message/mesage_line.dart';
+import 'package:hands_talks/message/message_utils.dart';
+import 'package:hands_talks/message/video_utils/video_handler.dart';
 import 'package:hands_talks/theming.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:record/record.dart';
-import 'package:uuid/uuid.dart';
 import 'package:hands_talks/Firebase_Utils/firestore_messages.dart';
 import 'package:provider/provider.dart';
-import 'package:zego_uikit/zego_uikit.dart';
-import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
+import 'package:hands_talks/Model/message.dart';
+
+import 'Loading_Shimmer/loading_image_chat.dart';
+// import 'package:zego_uikit/zego_uikit.dart';
+// import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
+
 
 class ChatPage extends StatefulWidget {
   MyUser user;
@@ -26,6 +32,8 @@ class ChatPage extends StatefulWidget {
   State<ChatPage> createState() => _ChatPageState();
 }
 
+
+
 class _ChatPageState extends State<ChatPage> {
   User? user = FirebaseAuth.instance.currentUser;
   final TextEditingController _messageController = TextEditingController();
@@ -33,36 +41,16 @@ class _ChatPageState extends State<ChatPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   String? chatId;
   String? currentUserPhone;
-
-  File? img;
-  final picker = ImagePicker();
-  Future getImage() async {
-    final pickedImage = await picker.pickImage(source: ImageSource.gallery);
-    setState(() {
-      if (pickedImage != null) {
-        img = File(pickedImage.path);
-      } else {
-        print("NO image");
-      }
-    });
-  }
-
-  final record = AudioRecorder();
-  String path = '';
-  String url = '';
+  // var pickedImage;
+  // final record = AudioRecorder();
+  bool isUploading = false;
 
   void initState() {
     FirebaseAuthService authProvider =
-        Provider.of<FirebaseAuthService>(context, listen: false);
+    Provider.of<FirebaseAuthService>(context, listen: false);
     currentUserPhone = authProvider.myUser?.phoneNumber ?? "";
-    CallService.onUserLogin(
-        id: authProvider.myUser?.uId ?? "",
-        name: authProvider.myUser?.name ?? "");
+
     super.initState();
-
-    print("9999999999999999999999999999999999999");
-    print("9999999999999999999999999999999999999");
-
     fetchChatId();
   }
 
@@ -70,110 +58,17 @@ class _ChatPageState extends State<ChatPage> {
     String id = await FirestoreMessages.GetOrCreateChatCollection(
         user1Phone: currentUserPhone ?? "",
         user2Phone: widget.user.phoneNumber ?? "");
-    print("-==04-053-0353-450345e0=350=353=-503503-5035");
     print(currentUserPhone);
-
     setState(() {
       chatId = id;
     });
-    markMessagesAsSeen();
-  }
-
-  void markMessagesAsSeen() {
-    FirebaseFirestore.instance
-        .collection('chats')
-        .doc(chatId)
-        .collection('messages')
-        .where('receiver', isEqualTo: currentUserPhone)
-        .where('isSeenBy', isEqualTo: false) // Fetch only unseen messages
-        .get()
-        .then((snapshot) {
-      for (var doc in snapshot.docs) {
-        doc.reference.update({'isSeenBy': true});
-      }
-    });
-  }
-
-  // Edit Message
-  void _editMessage(
-      BuildContext context, String messageId, String currentText) {
-    TextEditingController editController =
-        TextEditingController(text: currentText);
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true, // Allows the bottom sheet to expand fully
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) {
-        return Padding(
-          padding:
-              EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-          child: Container(
-            padding: EdgeInsets.all(16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  maxLines: 4,
-                  minLines: 1,
-                  controller: editController,
-                  decoration: InputDecoration(
-                    fillColor: Theming.secondary,
-                    filled: true,
-                    hintText: "Edit message...",
-                    hintStyle: TextStyle(color: Theming.snackBar),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                ),
-                SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context); // Close bottom sheet
-                      },
-                      child: Text("Cancel"),
-                    ),
-                    SizedBox(width: 10),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Theming.primary,
-                      ),
-                      onPressed: () {
-                        String updatedMessage = editController.text.trim();
-                        if (updatedMessage.isNotEmpty) {
-                          print(
-                              "===============================================");
-                          print("Updated Message: $updatedMessage");
-                          FirestoreMessages.editMessage(
-                              chatId!, messageId, editController.text.trim());
-
-                          Navigator.pop(
-                              context); // Close bottom sheet after saving
-                        }
-                      },
-                      child: Text(
-                        "Save",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
+    MessageUtils.markMessagesAsSeen(
+        chatId: chatId!, currentUserPhone: currentUserPhone!);
   }
 
   @override
   Widget build(BuildContext context) {
+    final profile = Provider.of<ProfileSetting>(context);
     return Scaffold(
       backgroundColor: const Color(0xffd9d9d9),
       appBar: AppBar(
@@ -188,20 +83,43 @@ class _ChatPageState extends State<ChatPage> {
       body: Column(
         children: [
           Card(
-            margin: EdgeInsets.all(0),
+            margin: const EdgeInsets.all(0),
             shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
             color: Theming.white,
             elevation: 0,
             child: ListTile(
-              leading: CircleAvatar(
-                backgroundColor: Colors.transparent,
-                child: Icon(
-                  Icons.account_circle_rounded,
-                  size: 50,
-                ),
-              ),
+              leading: FutureBuilder<String?>(
+            future: Provider.of<ProfileSetting>(context, listen: false)
+                .getUserImageUrl(widget.user.uId ?? "" ),
+      builder: (context, snapshot) {
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return LoadingImageChat(); // Optional: Show loading
+        }
+        final imageUrl = snapshot.data;
+        print("IMAGEURL$imageUrl");
+        return CircleAvatar(
+          backgroundImage: imageUrl != null
+              ? NetworkImage(imageUrl)
+              : AssetImage("assets/Default_pfp.jpg") as ImageProvider,
+        );
+      },
+    ),
+              // title: Text(
+              //   widget.user.name ?? "",
+              //   style: Theming.lightTheme.textTheme.titleLarge!
+              //       .copyWith(fontSize: 17),
               // ),
+              // subtitle: Text(
+              //   widget.user.phoneNumber ?? "",
+              //   style: Theming.lightTheme.textTheme.bodySmall,
+              // ),
+              // trailing: Image.asset(
+              //   "assets/icons/Videocamera.png",
+              // ),
+              // ),
+
               title: Text(
                 widget.user.name ?? "",
                 style: Theming.lightTheme.textTheme.titleLarge!
@@ -211,23 +129,20 @@ class _ChatPageState extends State<ChatPage> {
                 widget.user.phoneNumber ?? "",
                 style: Theming.lightTheme.textTheme.bodySmall,
               ),
-              trailing: ZegoSendCallInvitationButton(
-                iconSize: Size(40, 40),
-                buttonSize: Size(50, 50),
-                isVideoCall: true,
-                resourceID: "HandsTalks",
-                invitees: [
-                  ZegoUIKitUser(
-                    id: widget.user.uId ?? "", // must match login id
-                    name: widget.user.name ?? "",
-                  ),
-                ],
-              ),
+              // trailing: ZegoSendCallInvitationButton(
+              //   iconSize: Size(40, 40),
+              //   buttonSize: Size(50, 50),
+              //   isVideoCall: true,
+              //   resourceID: "HandsTalks",
+              //   invitees: [
+              //     ZegoUIKitUser(
+              //       id: widget.user.uId ?? "", // must match login id
+              //       name: widget.user.name ?? "",
+              //     ),
+              //   ],
+              // ),
             ),
           ),
-
-          // const Spacer(),
-          // Streaming runtime show message
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: _firestore
@@ -247,13 +162,11 @@ class _ChatPageState extends State<ChatPage> {
                   itemCount: messages.length,
                   itemBuilder: (context, index) {
                     var message = messages[index];
-                    var messageText = message['text'];
+                    var content = message['content'];
                     var messageSender = message['sender'];
-                    var messageReciver = message['receiver'];
                     var messageId = message.id;
                     var isEdited = message['isEdited'];
                     var isSeenBy = message['isSeenBy'];
-                    // var messageDate = (message['timestamp'] as Timestamp).toDate();
                     bool isMe = messageSender == currentUserPhone;
 
                     var messageDate;
@@ -271,51 +184,20 @@ class _ChatPageState extends State<ChatPage> {
                           context: context,
                           builder: (context) {
                             if (isMe) {
-                              return Wrap(
-                                children: [
-                                  ListTile(
-                                      title: Text("Edit"),
-                                      leading: Icon(Icons.edit),
-                                      onTap: () {
-                                        Navigator.pop(context);
-                                        _editMessage(
-                                            context, messageId, messageText);
-                                        print(
-                                            "-00=-0=0=9430990395039093093093-093-093090395-993-959");
-                                        // EditMessage(message: messageText,);
-                                        // FirestoreMessages.editMessage(chatId??"", messageId, messageText);
-                                      }),
-                                  ListTile(
-                                    title: Text("delete for eveyone "),
-                                    leading: Icon(Icons.delete_forever),
-                                    onTap: () {
-                                      FirestoreMessages
-                                          .deleteMessageForEveryone(
-                                              chatId!, messageId);
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(SnackBar(
-                                        content:
-                                            Text("Message Deleted Successfuly"),
-                                        backgroundColor: Colors.red,
-                                        duration: Duration(seconds: 1),
-                                      ));
-                                      Navigator.pop(context);
-                                    },
-                                  ),
-                                ],
-                              );
+                              return DeleteEditMessage(messageId: messageId, content: content, chatId: chatId??"",type: MessageType.values[message['type']]);
                             }
-                            return Text("null");
+                            return SizedBox();
                           },
                         );
                       },
                       child: MessageLine(
-                        message: messageText,
-                        isSeen: isSeenBy,
-                        time: messageDate, // Format timestamp
-                        isMe: isMe,
-                        isEdited: isEdited,
-                      ),
+                          message: content,
+                          isSeen: isSeenBy,
+                          time: messageDate,
+                          // Format timestamp
+                          isMe: isMe,
+                          isEdited: isEdited,
+                          type: MessageType.values[message['type']]),
                     );
                   },
                 );
@@ -378,12 +260,25 @@ class _ChatPageState extends State<ChatPage> {
                             size: 25,
                           ),
                           onPressed: () async {
+                            MyMessage textMessage = MyMessage(
+                              messageId: "",
+                              // Will be assigned in sendMessage
+                              receiver: widget.user.phoneNumber ?? "",
+                              content: _messageController
+                                  .text,
+                              // The text from the input field
+                              sender: currentUserPhone ?? "",
+                              isEdited: false,
+                              timestamp: DateTime.now(),
+                              type: MessageType.text,
+                              isSeenBy: false,
+                            );
                             FirestoreMessages.sendMessage(
-                                user: widget.user,
-                                sender: currentUserPhone ?? "",
-                                text: _messageController.text.trim());
+                                user: widget.user, message: textMessage);
                             _messageController.clear();
-                          })),
+                          },
+                          ),
+                  ),
                 ),
                 Spacer(),
               ],
@@ -392,6 +287,8 @@ class _ChatPageState extends State<ChatPage> {
         ],
       ),
     );
+
+
   }
 
   Widget bottomsheet() {
@@ -404,24 +301,82 @@ class _ChatPageState extends State<ChatPage> {
         children: [
           const Spacer(),
           Row(
+
             children: [
               const Spacer(),
-              GestureDetector(
-                  onTap: open_image_camera,
-                  child: IconCreation(
-                      icon: Icons.camera_alt_rounded, text: "Camera")),
-              const Spacer(),
               IconCreation(
-                icon: Icons.mic_rounded,
-                text: "Record",
-                ontab: () {},
+                icon: Icons.camera_alt_rounded,
+                text: "Camera",
+                ontab: () =>
+                    ImageHandler.openImageCamera(
+                      context: context,
+                      currentUserPhone: currentUserPhone ?? "",
+                      user: widget.user,
+                      setIsUploading: (value) =>
+                          setState(() => isUploading = value),
+                    ),
               ),
               const Spacer(),
               IconCreation(
-                icon: Icons.person_2_rounded,
-                text: "Contact",
-                ontab: () {},
-              ),
+                  icon: Icons.mic_rounded,
+                  text: "Voice",
+                  ontab: () {
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      builder: (context)=>
+                      Container(
+                          width: double.infinity,
+                          height:  MediaQuery.of(context).size.height * 0.3,
+                          child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                              Center(child:
+                              RecordHandel(user: widget.user)
+                              ),
+                              Text("Long Press to Record")
+                            ],
+                          ))
+                    );
+                  }),
+              // ---------------------
+              // const Spacer(),
+              // IconCreation(
+              //   icon: Icons.person_2_rounded,
+              //   text: "Contact",
+              //   ontab: () async {
+              //     final List<Contact>? selectedContacts = await Navigator.push(
+              //       context,
+              //       MaterialPageRoute(builder: (_) => SendContactPage()),
+              //     );
+              //
+              //     if (selectedContacts == null || selectedContacts.isEmpty)
+              //       return;
+              //
+              //     if (chatId == null) {
+              //       // من الأفضل التعامل مع الحالة دي، مثلا عرض رسالة خطأ
+              //       return;
+              //     }
+              //
+              //     for (final contact in selectedContacts) {
+              //       if (contact.phones.isEmpty) continue;
+              //
+              //       String contactJson = jsonEncode({
+              //         'name': contact.displayName,
+              //         'phone': contact.phones.first.number,
+              //       });
+              //
+              //       await FirestoreMessages.sendContactToFirebase(
+              //         chatId: chatId!,
+              //         contactJson: contactJson,
+              //         senderId: currentUserPhone ?? "",
+              //         receiverId: widget.user.phoneNumber ?? "",
+              //       );
+              //     }
+              //   },
+              // ),
+
               const Spacer(),
             ],
           ),
@@ -429,22 +384,66 @@ class _ChatPageState extends State<ChatPage> {
           Row(
             children: [
               const Spacer(),
-              InkWell(
-                  onTap: getImage,
-                  child: IconCreation(
-                      icon: Icons.insert_photo_rounded, text: "Gallery")),
-              const Spacer(),
               IconCreation(
-                icon: Icons.location_on_rounded,
-                text: "My Location",
-                ontab: () {},
+                icon: Icons.insert_photo_rounded,
+                text: "Gallery",
+                ontab: () =>
+                    ImageHandler.openImageGallery(
+                      context: context,
+                      currentUserPhone: currentUserPhone ?? "",
+                      user: widget.user,
+                      setIsUploading: (value) =>
+                          setState(() => isUploading = value),
+                    ),
               ),
               const Spacer(),
               IconCreation(
-                icon: Icons.insert_drive_file_rounded,
-                text: "Document",
-                ontab: () {},
+                icon: Icons.videocam_rounded,
+                text: "Video",
+                ontab: () =>VideoHandler.openVideoGallery(
+                  context: context,
+                  currentUserPhone: currentUserPhone ?? "",
+                  user: widget.user,
+                  setIsUploading: (value) =>
+                      setState(() => isUploading = value),
+                ),
               ),
+              // const Spacer(),
+              // IconCreation(
+              //   icon: Icons.insert_drive_file_rounded,
+              //   text: "Document",
+              //   ontab: () async {
+              //     Navigator.pop(context);
+              //     FilePickerResult? result = await FilePicker.platform
+              //         .pickFiles(
+              //         type: FileType.custom,
+              //         allowedExtensions: ['pdf', 'doc', 'docx', 'txt']);
+              //     if (result != null && result.files.single.path != null) {
+              //       File file = File(result.files.single.path!);
+              //       String? downloadUrl =
+              //       await FirestoreMessages.uploadDocumentToFireStore(file);
+              //
+              //       if (downloadUrl != null) {
+              //         MyMessage docMessage = MyMessage(
+              //           messageId: "",
+              //           receiver: widget.user.phoneNumber ?? "",
+              //           content: downloadUrl,
+              //           sender: currentUserPhone ?? "",
+              //           isEdited: false,
+              //           timestamp: DateTime.now(),
+              //           type: MessageType.document,
+              //           isSeenBy: false,
+              //         );
+              //         FirestoreMessages.sendMessage(
+              //             user: widget.user, message: docMessage);
+              //       } else {
+              //         ScaffoldMessenger.of(context).showSnackBar(
+              //           SnackBar(content: Text("Failed to upload document")),
+              //         );
+              //       }
+              //     }
+              //   },
+              // ),
               const Spacer(),
             ],
           ),
@@ -454,55 +453,4 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  // start_record()async{
-  //   // to get us location for record to recording in it
-  //   final location = await getApplicationDocumentsDirectory();
-  //   String name = const Uuid().v1();
-  //   if(await record.hasPermission()){
-  //     await record.start(const RecordConfig(), path: '${location.path}$name.m4a');
-  //   }
-  //   print("Start Record");
-  // }
-  stop_record() async {
-    String? finalPath = await record.stop();
-    setState(() {
-      path = finalPath!;
-    });
-    print("Stop record");
-  }
-
-  open_image_gallery() async {
-    var get = await ImagePicker().pickImage(source: ImageSource.gallery);
-
-    img = File(get!.path);
-    setState(() {});
-    showAndSend();
-  }
-
-  open_image_camera() async {
-    var get = await ImagePicker().pickImage(source: ImageSource.camera);
-    if (get == null) return;
-
-    img = File(get.path);
-    setState(() {});
-    showAndSend();
-  }
-
-  showAndSend() {
-    showModalBottomSheet(
-      context: context,
-      builder: (build) => Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        width: MediaQuery.of(context).size.width,
-        child: Column(
-          children: [
-            Image(image: FileImage(img!, scale: 50)),
-            ElevatedButton(onPressed: () {}, child: const Text("Send"))
-          ],
-        ),
-      ),
-    );
-  }
 }

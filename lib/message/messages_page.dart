@@ -1,8 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:hands_talks/Authentication/Login/Login_Screen.dart';
 import 'package:hands_talks/Firebase_Utils/Firebase_Auth.dart';
 import 'package:hands_talks/Model/chat.dart';
 import 'package:hands_talks/Model/message.dart';
@@ -11,8 +9,7 @@ import 'package:hands_talks/animation_routing/animation.dart';
 import 'package:hands_talks/message/ContactsPage.dart';
 import 'package:hands_talks/message/buildChatTitle.dart';
 import 'package:hands_talks/message/chatpage.dart';
-import 'package:hands_talks/message/custom_search_bar.dart';
-import 'package:hands_talks/message/loading_chats.dart';
+import 'package:hands_talks/message/Loading_Shimmer/loading_chats.dart';
 import 'package:hands_talks/theming.dart';
 import 'package:provider/provider.dart';
 class MessagesPage extends StatefulWidget {
@@ -32,35 +29,26 @@ class _MessagesPageState extends State<MessagesPage> {
   String? uid;
   var chats = [];
   var searchList = [];
-  Message? message;
+  MyMessage? message;
   bool isSearching = false;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   @override
   void initState() {
     super.initState();
   }
-
-
-
-
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     Future.delayed(Duration.zero,()async{
       authProvider = Provider.of<FirebaseAuthService>(context, listen: false);
-      await authProvider.getUserProfileInfo();
+      // await authProvider.getUserProfileInfo();
       setState(() {
         currentUserPhone = authProvider.myUser?.phoneNumber ?? "";
         uid = authProvider.myUser?.uId ?? "";
         name = authProvider.myUser.name ?? "";
       });
-
-      print("???????????????????????????????????");
-      print(currentUserPhone);
-      print(uid);
-      print(name);
-      print("???????????????????????????????????");
 
     });
 
@@ -149,8 +137,6 @@ class _MessagesPageState extends State<MessagesPage> {
                       ),
                     );
                   }
-
-
      chats = snapshot.data!.docs.map((doc){
       return Chat.fromFireStore(doc.data() as Map<String,dynamic>, doc.id);}).toList();
 
@@ -159,8 +145,7 @@ class _MessagesPageState extends State<MessagesPage> {
                     itemBuilder: (context,index){
                       var chat = chats[index];
                       String chatID = chat.chatId;
-                      print("dgkdlgkjdfglkjdfgljdgldjfg");
-                      print(chatID);
+
                       String recipientPhone = chat.users.firstWhere((phoneNumber) => phoneNumber !=currentUserPhone);
                       return FutureBuilder<QuerySnapshot>(
                         future:_firestore.collection('users').where('phoneNumber', isEqualTo: recipientPhone).get(),
@@ -169,15 +154,6 @@ class _MessagesPageState extends State<MessagesPage> {
                           if (snapshot.connectionState == ConnectionState.waiting) {
                             return LoadingChats();
                           }
-                          // if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                          //   print("User not found in Firestore: $recipientPhone");
-                          //   return ListTile(
-                          //     title: Text(recipientPhone),
-                          //     subtitle: Text("User not found"),
-                          //   );
-                          // }
-                          // print("Users found: ${snapshot.data!.docs.length}");
-
                           var userData = snapshot.data!.docs.first.data() as Map<String, dynamic>;
 
                           MyUser user = MyUser.fromJson(userData);
