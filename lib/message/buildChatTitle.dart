@@ -1,11 +1,15 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:hands_talks/Firebase_Utils/Firebase_Auth.dart';
 import 'package:hands_talks/Firebase_Utils/firestore_messages.dart';
+import 'package:hands_talks/Firebase_Utils/profile_setting.dart';
 import 'package:hands_talks/Model/message.dart';
 import 'package:hands_talks/Model/myUser.dart';
+import 'package:hands_talks/message/Loading_Shimmer/loading_image_chat.dart';
 import 'package:hands_talks/theming.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class BuildchatTitle extends StatefulWidget {
   MyUser user;
@@ -22,9 +26,10 @@ class BuildchatTitle extends StatefulWidget {
 }
 
 class _BuildchatTitleState extends State<BuildchatTitle> {
-  Message? lastMessage;
+  MyMessage? lastMessage;
 @override
   void initState() {
+
     // TODO: implement initState
     super.initState();
     // _fetchLastMessage();
@@ -40,32 +45,72 @@ class _BuildchatTitleState extends State<BuildchatTitle> {
 
   @override
   Widget build(BuildContext context) {
+    final profile = Provider.of<ProfileSetting>(context, listen: false);
+
     return StreamBuilder(stream: FirestoreMessages.getLastMessage(widget.chatId), builder: (context,snapshot){
-      Message? lastMessage = snapshot.data;
+      MyMessage? lastMessage = snapshot.data;
       return ListTile(
-        leading: const Padding(
+        leading:  Padding(
           padding: EdgeInsets.only(right: 0),
-          child: CircleAvatar(backgroundColor: Colors.transparent,
-            child: Icon(Icons.account_circle_rounded, size: 50,),
-          ),
+          child: FutureBuilder<String?>(
+    future: profile
+        .getUserImageUrl(widget.user.uId ?? ""),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return LoadingImageChat(); // Optional: Show loading
+      }
+      final imageUrl = snapshot.data;
+      print("IMAGEURL$imageUrl");
+      return CircleAvatar(
+        backgroundImage: imageUrl != null
+            ? NetworkImage(imageUrl)
+            : AssetImage("assets/Default_pfp.jpg") as ImageProvider,
+      );
+    }
+    ),
+
         ),
 
         title: Text(widget.user.name??"",
           style: Theming.lightTheme.textTheme.titleLarge!.copyWith(
               fontSize: 17),),
 
-        subtitle: StreamBuilder<Message?>(stream:FirestoreMessages.getLastMessage(widget.chatId)
+        subtitle: StreamBuilder<MyMessage?>(stream:FirestoreMessages.getLastMessage(widget.chatId)
 
             , builder: (context, snapshot) {
               if (!snapshot.hasData) {
                 return Text("No messages yet", style: TextStyle(color: Colors.grey));
               }
-              Message lastMessage = snapshot.data!;
-              return Text(
-                lastMessage.text,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              );
+              MyMessage lastMessage = snapshot.data!;
+              switch(lastMessage.type){
+                case MessageType.text:
+                  return Text(
+                    lastMessage.content,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  );
+
+
+                case MessageType.image:
+                   return Text("📷 Image");
+
+
+                case MessageType.audio:
+                  return Text("🎵 Audio");
+
+
+                case MessageType.video:
+                  return Text ("📽️ Video");
+
+
+                case MessageType.document:
+                  return Text("📄 Document");
+
+
+                default:
+                  return Text("New message");
+              }
+
             }),
 
 

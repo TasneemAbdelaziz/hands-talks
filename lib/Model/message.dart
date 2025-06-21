@@ -1,38 +1,49 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class Message {
-  final messageId;
-  final String text;
+enum MessageType {
+  text,
+  image,
+  audio,
+  video,
+  document,
+  contact,
+}
+class MyMessage {
+  final String? messageId;
+  final String content;
   final String sender;
-  final  isSeenBy;
+  final bool isSeenBy;
   final DateTime timestamp;
   final bool isEdited;
   final String receiver;
+  final MessageType type;
 
 
-  Message(
-      {required this.messageId,required this.text, required this.sender, required this.isSeenBy, required this.isEdited, required this.timestamp,required this.receiver});
+  MyMessage(
+      {required this.type,this.messageId,required this.content, required this.sender, required this.isSeenBy, required this.isEdited, required this.timestamp,required this.receiver});
 
-  Message.fromFireStore(Map<String, Object?> json,String id)
+  MyMessage.fromFireStore(Map<String, dynamic> json,String id)
       : this(
-    text: json['text'] as String,
-    sender: json['sender'] as String,
-    isSeenBy: json['isSeenBy'] as bool,
+    content: json['content'],
+    sender: json['sender'],
+    isSeenBy: json['isSeenBy'],
     timestamp: (json['timestamp'] as Timestamp).toDate(),
-    isEdited: json['isEdited'] as bool,
-    receiver: json['receiver'] as String,
+    isEdited: json['isEdited'],
+    receiver: json['receiver'],
     messageId: id,
+      type: MessageType.values[json['type']]
   );
 
   Map<String, Object?> toFireStore() {
     return {
-    "text":text,
+    "content":content,
     'sender': sender,
     'isSeenBy': isSeenBy,
     'timestamp': Timestamp.fromDate(timestamp),
     'isEdited':isEdited,
-    'receiver':receiver
+    'receiver':receiver,
+     'type': type.index,
   };
 }
 }

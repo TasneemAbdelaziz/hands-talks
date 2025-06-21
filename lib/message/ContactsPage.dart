@@ -4,7 +4,6 @@ import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:hands_talks/Firebase_Utils/Firebase_Auth.dart';
 import 'package:hands_talks/Model/myUser.dart';
 import 'package:hands_talks/message/chatpage.dart';
-import 'package:hands_talks/message/custom_search_bar.dart';
 import 'package:hands_talks/message/messages_page.dart';
 import 'package:hands_talks/theming.dart';
 import 'package:permission_handler/permission_handler.dart';
