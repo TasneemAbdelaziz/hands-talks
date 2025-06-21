@@ -18,8 +18,8 @@ import 'package:provider/provider.dart';
 import 'package:hands_talks/Model/message.dart';
 
 import 'Loading_Shimmer/loading_image_chat.dart';
-// import 'package:zego_uikit/zego_uikit.dart';
-// import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
+import 'package:zego_uikit/zego_uikit.dart';
+import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 
 
 class ChatPage extends StatefulWidget {
@@ -129,18 +129,18 @@ class _ChatPageState extends State<ChatPage> {
                 widget.user.phoneNumber ?? "",
                 style: Theming.lightTheme.textTheme.bodySmall,
               ),
-              // trailing: ZegoSendCallInvitationButton(
-              //   iconSize: Size(40, 40),
-              //   buttonSize: Size(50, 50),
-              //   isVideoCall: true,
-              //   resourceID: "HandsTalks",
-              //   invitees: [
-              //     ZegoUIKitUser(
-              //       id: widget.user.uId ?? "", // must match login id
-              //       name: widget.user.name ?? "",
-              //     ),
-              //   ],
-              // ),
+              trailing: ZegoSendCallInvitationButton(
+                iconSize: Size(40, 40),
+                buttonSize: Size(50, 50),
+                isVideoCall: true,
+                resourceID: "HandsTalks",
+                invitees: [
+                  ZegoUIKitUser(
+                    id: widget.user.uId ?? "", // must match login id
+                    name: widget.user.name ?? "",
+                  ),
+                ],
+              ),
             ),
           ),
           Expanded(
