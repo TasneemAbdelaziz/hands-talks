@@ -378,6 +378,7 @@ import 'package:hands_talks/Model/myUser.dart';
 import 'package:hands_talks/home/homepage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:hands_talks/message/call_services.dart';
+import 'package:hands_talks/onboarding/onboarding_screens.dart';
 import 'package:hands_talks/theming.dart';
 import 'package:hands_talks/transition/transition.dart';
 import 'package:provider/provider.dart';
@@ -617,7 +618,7 @@ class FirebaseAuthService extends ChangeNotifier {
       print("User is already signed in.${user.uid}");
       return Translation.routeName;
     } else {
-      return RegisterScreen.routeName;
+      return OnboardingScreen.routeName;
     }
   }
 

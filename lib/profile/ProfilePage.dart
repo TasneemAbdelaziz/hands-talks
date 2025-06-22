@@ -1,10 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hands_talks/Model/myUser.dart';
+import 'package:hands_talks/profile/SecurityPage.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-
 import '../Authentication/Login/Login_Screen.dart';
 import '../Authentication/forgot_password/forgot_password_screen.dart';
 import '../Firebase_Utils/Firebase_Auth.dart';
@@ -139,26 +139,26 @@ class _ProfilePageState extends State<ProfilePage> {
                       onTap: () => Navigator.pushNamed(
                           context, EditInformationPage.routeName),
                     ),
-                    _buildSettingsTile(
-                      icon: Icons.notifications,
-                      title: 'Notifications',
-                      trailing: Switch(
-                        value: _isNotificationsEnabled,
-                        onChanged: (value) {
-                          setState(() {
-                            _isNotificationsEnabled = value;
-                          });
-                        },
-                      ),
-                      onTap: () {},
-                    ),
-                    _buildSettingsTile(
-                      icon: Icons.language,
-                      title: 'Language',
-                      onTap: () {
-                        // Implement language settings navigation
-                      },
-                    ),
+                    // _buildSettingsTile(
+                    //   icon: Icons.notifications,
+                    //   title: 'Notifications',
+                    //   trailing: Switch(
+                    //     value: _isNotificationsEnabled,
+                    //     onChanged: (value) {
+                    //       setState(() {
+                    //         _isNotificationsEnabled = value;
+                    //       });
+                    //     },
+                    //   ),
+                    //   onTap: () {},
+                    // ),
+                    // _buildSettingsTile(
+                    //   icon: Icons.language,
+                    //   title: 'Language',
+                    //   onTap: () {
+                    //     // Implement language settings navigation
+                    //   },
+                    // ),
                   ]),
 
                   _buildSettingsBox([
@@ -173,15 +173,22 @@ class _ProfilePageState extends State<ProfilePage> {
                     _buildSettingsTile(
                       icon: Icons.security,
                       title: 'Security',
-                      onTap: () {},
-                    ),
-                    _buildSettingsTile(
-                      icon: Icons.color_lens,
-                      title: 'Theme',
                       onTap: () {
-                        // Implement theme settings navigation
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => Securitypage(),
+                          ),
+                        );
                       },
                     ),
+                    // _buildSettingsTile(
+                    //   icon: Icons.color_lens,
+                    //   title: 'Theme',
+                    //   onTap: () {
+                    //     // Implement theme settings navigation
+                    //   },
+                    // ),
                   ]),
                   _buildSettingsBox([
                     _buildSettingsTile(

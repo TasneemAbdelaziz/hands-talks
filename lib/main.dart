@@ -8,6 +8,7 @@ import 'package:hands_talks/Authentication/Register/Register_Screen.dart';
 import 'package:hands_talks/Authentication/phoneNumber_Screen.dart';
 import 'package:hands_talks/Firebase_Utils/Firebase_Auth.dart';
 import 'package:hands_talks/home/homepage.dart';
+import 'package:hands_talks/onboarding/onboarding_screens.dart';
 import 'package:hands_talks/profile/EditInformation.dart';
 import 'package:hands_talks/profile/ProfilePage.dart';
 import 'package:hands_talks/services/messages_configrations.dart';
@@ -90,9 +91,7 @@ class MyApp extends StatelessWidget {
       splitScreenMode:true,
       minTextAdapt: true,
       child: MaterialApp(
-
         navigatorKey: navigatorKey,
-
         debugShowCheckedModeBanner: false,
         initialRoute:FirebaseAuthService.checkSignInState(),
         routes: {
@@ -109,8 +108,10 @@ class MyApp extends StatelessWidget {
           TextProcessing.routeName:(context)=> TextProcessing(),
          ProfilePage.routeName:(context)=> ProfilePage(),
           EditInformationPage.routeName: (context) => EditInformationPage(),
+          OnboardingScreen.routeName: (context) => OnboardingScreen(),
+          WelcomeScreen.routeName: (context) => WelcomeScreen(),
 
-      
+
         },
       
       

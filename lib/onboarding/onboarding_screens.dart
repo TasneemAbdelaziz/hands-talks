@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:hands_talks/welcome/welcomepage.dart';
 
 class OnboardingScreen extends StatefulWidget {
+  static const String routeName = "OnboardingScreen";
+
   @override
   _OnboardingScreenState createState() => _OnboardingScreenState();
 }
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
+
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
@@ -154,7 +157,7 @@ class OnboardingPage extends StatelessWidget {
         children: [
           Image.asset(
             imagePath,
-            height: 300,
+            // height: 200,
           ),
           SizedBox(height: 20),
           Text(
@@ -178,8 +181,12 @@ class OnboardingPage extends StatelessWidget {
 }
 
 class WelcomeScreen extends StatelessWidget {
+  static const String routeName = "WelcomeScreen";
+
+
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       body: Center(
         child: Text(

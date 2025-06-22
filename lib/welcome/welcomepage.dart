@@ -82,7 +82,7 @@ class WelcomePage extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: Theming.primary,
                   ),
                 ),
               ),

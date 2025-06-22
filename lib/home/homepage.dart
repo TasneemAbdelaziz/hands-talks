@@ -45,68 +45,68 @@ class FeedsPage extends StatefulWidget {
 }
 
 class _FeedsPageState extends State<FeedsPage> {
-  int selected = 0;
-  final List<String> tabs = ['Daily Posts', 'Community'];
+  // int selected = 0;
+  // final List<String> tabs = ['Daily Posts', 'Community'];
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: tabs.length,
-      child: Scaffold(
+    return
+      // length: tabs.length,
+       Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.white,
           elevation: 1,
           title: const Text('Feeds',
               style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
           centerTitle: true,
-          actions: [
-            _iconButton('assets/icons/filter.png', 'Filter icon tapped!'),
-            _iconButton('assets/icons/notification.png', 'Notification icon tapped!', showDot: true),
-          ],
+          // actions: [
+          //   _iconButton('assets/icons/filter.png', 'Filter icon tapped!'),
+          //   _iconButton('assets/icons/notification.png', 'Notification icon tapped!', showDot: true),
+          // ],
         ),
         body: Column(
           children: [
-            _buildTabBar(),
+            // _buildTabBar(),
             Expanded(
-              child: TabBarView(
-                children: [
+              child:
+              // TabBarView(
+                // children: [
                   _buildDailyPosts(),
-                  _buildCommunityCards(),
-                ],
-              ),
+                  // _buildCommunityCards(),
+                // ],
+              // ),
             ),
           ],
         ),
-      ),
-    );
+      );
   }
 
-  Widget _buildTabBar() {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: TabBar(
-        onTap: (index) => setState(() => selected = index),
-        isScrollable: true,
-        indicatorColor: Colors.transparent,
-        tabs: tabs.map((title) {
-          final bool isSelected = tabs.indexOf(title) == selected;
-          return Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            margin: const EdgeInsets.only(left: 8),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              color: isSelected ? Colors.grey : Colors.transparent,
-              border: isSelected ? null : Border.all(color: Colors.grey),
-            ),
-            child: Text(
-              title,
-              style: TextStyle(color: isSelected ? Colors.white : Colors.grey, fontWeight: FontWeight.bold),
-            ),
-          );
-        }).toList(),
-      ),
-    );
-  }
+  // Widget _buildTabBar() {
+  //   return Align(
+  //     alignment: Alignment.centerLeft,
+  //     child: TabBar(
+  //       onTap: (index) => setState(() => selected = index),
+  //       isScrollable: true,
+  //       indicatorColor: Colors.transparent,
+  //       tabs: tabs.map((title) {
+  //         final bool isSelected = tabs.indexOf(title) == selected;
+  //         return Container(
+  //           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+  //           margin: const EdgeInsets.only(left: 8),
+  //           decoration: BoxDecoration(
+  //             borderRadius: BorderRadius.circular(10),
+  //             color: isSelected ? Colors.grey : Colors.transparent,
+  //             border: isSelected ? null : Border.all(color: Colors.grey),
+  //           ),
+  //           child: Text(
+  //             title,
+  //             style: TextStyle(color: isSelected ? Colors.white : Colors.grey, fontWeight: FontWeight.bold),
+  //           ),
+  //         );
+  //       }).toList(),
+  //     ),
+  //   );
+  // }
 
   Widget _iconButton(String path, String message, {bool showDot = false}) {
     return Padding(

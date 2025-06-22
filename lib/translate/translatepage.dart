@@ -48,18 +48,21 @@ class TranslatePage extends StatelessWidget {
                         shape: BoxShape.circle,
                         gradient: Theming.icons,
                       ),
-                      child: IconButton(
-                          onPressed: () {
-                            Navigator.pushNamed(context, 'SpeechProcessing');
-                          },
-                          icon: Icon(
-                            Icons.mic_none_outlined,
-                            color: Theming.white,
-                            size: 45,
-                          )),
+                      child: Center(
+                        child: IconButton(
+                            onPressed: () {
+                              Navigator.pushNamed(context, 'SpeechProcessing');
+                            },
+                            icon: Icon(
+                              Icons.mic_none_outlined,
+                              color: Theming.white,
+                              size: 45,
+                            )),
+                      ),
                     )
                   ],
-                )
+                ),
+                // SizedBox(height: 50,),
               ],
             ),
           ),
