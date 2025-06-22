@@ -41,7 +41,6 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.6
   curved_navigation_bar: ^1.0.6
-  google_fonts: ^6.2.1
   email_validator: ^2.1.17
   firebase_core: ^3.4.0
   firebase_auth: ^5.2.0
@@ -95,6 +94,8 @@ dependencies:
   cached_video_player_plus: ^3.0.3
   flutter_cache_manager: ^3.4.1
   firebase_ml_model_downloader: ^0.3.3+5
+#  tflite_flutter_helper: ^0.2.1
+  google_fonts: ^6.2.1
 #  camera: ^0.10.5+4
 #  voice_note_kit: ^1.3.1
 
@@ -145,6 +146,7 @@ flutter:
   - assets/Default_pfp.jpg
   - assets/Background.png
   - assets/logout.png
+#  - assets/models/action3.tflite
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

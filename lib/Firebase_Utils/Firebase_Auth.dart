@@ -1,3 +1,372 @@
+// import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:firebase_messaging/firebase_messaging.dart';
+// import 'package:flutter/material.dart';
+// import 'package:hands_talks/Authentication/Login/Login_Screen.dart';
+// import 'package:hands_talks/Authentication/Register/Register_Screen.dart';
+// import 'package:hands_talks/Authentication/phoneNumber_Screen.dart';
+// import 'package:hands_talks/Model/myUser.dart';
+// import 'package:hands_talks/home/homepage.dart';
+// import 'package:google_sign_in/google_sign_in.dart';
+// import 'package:hands_talks/message/call_services.dart';
+// import 'package:hands_talks/theming.dart';
+// import 'package:hands_talks/transition/transition.dart';
+// import 'package:provider/provider.dart';
+// import 'package:quickalert/models/quickalert_type.dart';
+// import 'package:quickalert/widgets/quickalert_dialog.dart';
+//
+// class FirebaseAuthService extends ChangeNotifier{
+//   MyUser? myUser;
+//   static final FirebaseAuth auth = FirebaseAuth.instance;
+//   static bool isCorrect = true;
+//
+//   static CollectionReference<MyUser> getUserCollection() {
+//     return FirebaseFirestore.instance.collection('users').withConverter<MyUser>(
+//       fromFirestore: (snapshot, _) => MyUser.fromJson(snapshot.data()!),
+//       toFirestore: (MyUser, _) => MyUser.toJson(),
+//     );
+//   }
+//
+//   // When the user logs in or launches the app, retrieve their FCM token and save it in Firestore under their user document.
+//   static Future<void> saveFCMToken(String userId) async {
+//     final token = await FirebaseMessaging.instance.getToken();
+//     if (token != null) {
+//       await getUserCollection().doc(userId).update({'fcmToken': token});
+//     }
+//   }
+//
+//
+//   static void setupFCMTokenListener(String userId) {
+//     FirebaseMessaging.instance.onTokenRefresh.listen((newToken) async {
+//       await getUserCollection().doc(userId).update({'fcmToken': newToken});
+//     });
+//   }
+//
+//   // When sending a notification, retrieve the recipient's FCM token from Firestore using their userId.
+//   static Future<String?> getRecipientFCMToken(String recipientId) async {
+//     final doc = await getUserCollection().doc(recipientId).get();
+//     return doc.data()?.fcmToken;
+//   }
+//
+//   static Future<void> addUserToFireCloud(MyUser myUser) async {
+//     return await getUserCollection().doc(myUser.uId).set(myUser);
+//   }
+//
+//   static checkExistingPhoneNumber(phoneNumber, context) async {
+//     final phoneQuery = await getUserCollection()
+//         .where('phoneNumber', isEqualTo: phoneNumber)
+//         .get();
+//
+//     if (phoneQuery.docs.isNotEmpty) {
+//       return true;
+//     }
+//     return false;
+//   }
+//
+//   static checkExistingEmail(emailAddress, context) async {
+//     final phoneQuery =
+//     await getUserCollection().where('email', isEqualTo: emailAddress).get();
+//
+//     if (phoneQuery.docs.isNotEmpty) {
+//       return true;
+//     }
+//     return false;
+//   }
+//
+//   static Future<void> registerWithEmailAndPassword(
+//       {required String emailAddress,
+//         required String password,
+//         required String userName,
+//         required String phoneNumber,
+//         required context}) async {
+//     if (await checkExistingPhoneNumber(phoneNumber, context) == true) {
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         const SnackBar(
+//           content: Text('Phone number is already in use.'),
+//           backgroundColor: Colors.red,
+//         ),
+//       );
+//     } else {
+//       // Show loading alert
+//       QuickAlert.show(
+//         context: context,
+//         type: QuickAlertType.loading,
+//         title: 'Registering',
+//         text: 'Please wait...',
+//       );
+//       try {
+//         final UserCredential credential =
+//         await auth.createUserWithEmailAndPassword(
+//           email: emailAddress,
+//           password: password,
+//         );
+//         final token = await FirebaseMessaging.instance.getToken();
+//         MyUser myUser = MyUser(
+//             uId: credential.user?.uid ?? "",
+//             name: userName,
+//             email: emailAddress,
+//             phoneNumber: phoneNumber,
+//         fcmToken: token,
+//         );
+//         addUserToFireCloud(myUser);
+//
+//
+//         // Dismiss loading alert
+//         Navigator.pop(context);
+//
+//         // Show success alert with timer
+//         QuickAlert.show(
+//           context: context,
+//           type: QuickAlertType.success,
+//           title: 'Registration Successful',
+//           text: 'Account created successfully!',
+//           showCancelBtn: false, // No Cancel button
+//           showConfirmBtn: false,
+//           autoCloseDuration:
+//           Duration(seconds: 3), // Automatically close after 3 seconds
+//         );
+//
+//         // Navigate to LoginScreen after the timer
+//         // Future.delayed(Duration(seconds: 3), () {
+//         //   Navigator.pushReplacementNamed(context, LoginScreen.routeName);
+//         // });
+//         // await CallService.onUserLogin(
+//         //   id: credential.user!.uid,
+//         //   name: credential.user!.displayName ?? 'Anonymous',
+//         // );
+//
+//         CallService.onUserLogin(id: myUser.uId, name:myUser.name);
+//         Future.delayed(Duration(seconds: 3), () {
+// // Navigate after delay
+// //         Future.delayed(Duration(seconds: 3), () {
+//           Navigator.pushReplacementNamed(context, Translation.routeName);
+//         });
+//         print('User registered: ${credential.user?.email}');
+//       } on FirebaseAuthException catch (e) {
+//         // Dismiss loading alert
+//         Navigator.pop(context);
+//         if (e.code == 'weak-password') {
+//           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+//             content: Text('The password provided is too weak.'),
+//             backgroundColor: Colors.red,
+//           ));
+//         } else if (e.code ==
+//             'The email address is already in use by another account') {
+//           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+//             content: Text('The account already exists for that email.'),
+//             backgroundColor: Colors.red,
+//           ));
+//         } else {
+//           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+//             content: Text(' ${e.message}'),
+//             backgroundColor: Colors.red,
+//           ));
+//         }
+//       } catch (e) {
+//         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+//           content: Text('Error: $e'),
+//           backgroundColor: Colors.red,
+//         ));
+//       }
+//     }
+//   }
+//
+//   static Future<void> loginWithEmailAndPassword(
+//       {required emailAddress, required password, required context}) async {
+//     QuickAlert.show(
+//       context: context,
+//       type: QuickAlertType.loading,
+//       title: 'Signing In',
+//       text: 'Please wait...',
+//     );
+//     try {
+//       final credential = await FirebaseAuth.instance
+//           .signInWithEmailAndPassword(email: emailAddress, password: password);
+//       await saveFCMToken(credential.user!.uid);
+//       setupFCMTokenListener(credential.user!.uid);
+//
+//       QuickAlert.show(
+//         context: context,
+//         showCancelBtn: false, // No Cancel button
+//         showConfirmBtn: false,
+//         type: QuickAlertType.success,
+//         title: 'Sign-In Successful',
+//         text: 'Welcome back, ${credential.user?.displayName ?? ""}!',
+//         autoCloseDuration: Duration(seconds: 3),
+//       );
+//
+//       // Navigate to LoginScreen after the timer
+//       Future.delayed(Duration(seconds: 3), () {
+//         Navigator.pushReplacementNamed(context, Translation.routeName);
+//       });
+//     } on FirebaseAuthException catch (e) {
+//       Navigator.pop(context);
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         SnackBar(
+//           content: Text('Invalid login with this account try again '),
+//           backgroundColor: Colors.red,
+//         ),
+//       );
+//     }
+//   }
+//
+//   static Future<void> signInWithGoogle({
+//     required BuildContext context,
+//     String? PhoneNumber,
+//     String? email,
+//   }) async {
+//     // Show loading alert
+//     QuickAlert.show(
+//       context: context,
+//       type: QuickAlertType.loading,
+//       title: 'Signing In',
+//       text: 'Please wait...',
+//     );
+//
+//     try {
+//       // Trigger the authentication flow
+//       final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+//
+//
+//
+//       // If user cancels the sign-in process
+//       if (googleUser == null) {
+//         Navigator.pop(context); // Dismiss loading alert
+//         QuickAlert.show(
+//           context: context,
+//           type: QuickAlertType.error,
+//           title: 'Sign-In Cancelled',
+//           text: 'You cancelled the Google sign-in process.',
+//         );
+//         return;
+//       }
+//
+//       // Obtain the auth details from the request
+//       final GoogleSignInAuthentication? googleAuth =
+//       await googleUser.authentication;
+//
+//       // Dismiss loading alert
+//       Navigator.pop(context);
+//
+//       // Check if the email exists in your system
+//       if (await checkExistingEmail(googleUser.email, context) == true) {
+//         // Create a new credential
+//         final credential = GoogleAuthProvider.credential(
+//           accessToken: googleAuth?.accessToken,
+//           idToken: googleAuth?.idToken,
+//         );
+//
+//         // Sign in with Firebase
+//         await auth.signInWithCredential(credential);
+//
+//
+//         // Show success alert
+//         QuickAlert.show(
+//           context: context,
+//           type: QuickAlertType.success,
+//           title: 'Sign-In Successful',
+//           text: 'Welcome back, ${googleUser.displayName}!',
+//           showCancelBtn: false,
+//           showConfirmBtn: false,
+//           autoCloseDuration: Duration(seconds: 2),
+//         );
+//
+//         // Navigate to HomePage after the timer
+//         Future.delayed(Duration(seconds: 3), () {
+//           Navigator.pushReplacementNamed(context, Translation.routeName);
+//         });
+//       } else {
+//         // Navigate to PhoneNumberScreen
+//         final token = await FirebaseMessaging.instance.getToken();
+//         Navigator.pushNamed(context, PhoneNumberScreen.routeName,
+//             arguments: {"googleUser": googleUser, "token": token});
+//
+//
+//       }
+//     } catch (e) {
+//       Navigator.pop(context); // Dismiss loading alert
+//
+//       // Show error message using SnackBar
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         SnackBar(
+//           content: Text('Invalid login attempt: $e'),
+//           backgroundColor: Colors.red,
+//         ),
+//       );
+//     }
+//   }
+//
+//
+//
+//
+//
+//   static checkSignInState() {
+//     User? user = auth.currentUser;
+//     if (user != null) {
+//       print("User is already signed in.${user.uid}");
+//
+//       return Translation
+//           .routeName; // Replace '/home' with your home screen route
+//     } else {
+//       return RegisterScreen.routeName;
+//     }
+//   }
+//    Future<void> signOut(BuildContext context) async {
+//     try {
+//       await GoogleSignIn().signOut();
+//       await auth.signOut();
+//       // CallService.onUserLogout();
+//
+//       myUser = null; // ✅ Clear user data after logout
+//       notifyListeners();
+//       Navigator.of(context).pushNamedAndRemoveUntil(
+//         LoginScreen.routeName,
+//             (route) => false,
+//       );
+//
+//     } catch (e) {
+//       print('Error signing out: $e');
+//     }
+//   }
+//   getUserProfileInfo() async {
+//     User? user = auth.currentUser;
+//     if (user == null) {
+//       print("No user is signed in.");
+//       return null;
+//     }
+//     var doc = await getUserCollection().doc(user.uid).get();
+//     myUser = doc.data();
+//     notifyListeners();
+//
+//   }
+//
+//   Future<void> updateUserProfileInfo({String? newName}) async {
+//     User? user = auth.currentUser;
+//     if (user == null) {
+//       print("No user is signed in.");
+//       return;
+//     }
+//     // await user.updatePhotoURL(image??"");
+//     // Retrieve the current FCM token
+//     final currentUserDoc = await getUserCollection().doc(user.uid).get();
+//     final currentFCMToken = currentUserDoc.data()?.fcmToken;
+//
+//     await getUserCollection().doc(user.uid).update(
+//         {
+//           'name': newName,
+//           'fcmToken':currentFCMToken
+//         }
+//     );
+//     notifyListeners();
+//   }
+//
+//
+//
+//
+//
+//
+// }
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -15,7 +384,7 @@ import 'package:provider/provider.dart';
 import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
 
-class FirebaseAuthService extends ChangeNotifier{
+class FirebaseAuthService extends ChangeNotifier {
   MyUser? myUser;
   static final FirebaseAuth auth = FirebaseAuth.instance;
   static bool isCorrect = true;
@@ -27,7 +396,6 @@ class FirebaseAuthService extends ChangeNotifier{
     );
   }
 
-  // When the user logs in or launches the app, retrieve their FCM token and save it in Firestore under their user document.
   static Future<void> saveFCMToken(String userId) async {
     final token = await FirebaseMessaging.instance.getToken();
     if (token != null) {
@@ -35,14 +403,12 @@ class FirebaseAuthService extends ChangeNotifier{
     }
   }
 
-
   static void setupFCMTokenListener(String userId) {
     FirebaseMessaging.instance.onTokenRefresh.listen((newToken) async {
       await getUserCollection().doc(userId).update({'fcmToken': newToken});
     });
   }
 
-  // When sending a notification, retrieve the recipient's FCM token from Firestore using their userId.
   static Future<String?> getRecipientFCMToken(String recipientId) async {
     final doc = await getUserCollection().doc(recipientId).get();
     return doc.data()?.fcmToken;
@@ -53,32 +419,22 @@ class FirebaseAuthService extends ChangeNotifier{
   }
 
   static checkExistingPhoneNumber(phoneNumber, context) async {
-    final phoneQuery = await getUserCollection()
-        .where('phoneNumber', isEqualTo: phoneNumber)
-        .get();
-
-    if (phoneQuery.docs.isNotEmpty) {
-      return true;
-    }
-    return false;
+    final phoneQuery = await getUserCollection().where('phoneNumber', isEqualTo: phoneNumber).get();
+    return phoneQuery.docs.isNotEmpty;
   }
 
   static checkExistingEmail(emailAddress, context) async {
-    final phoneQuery =
-    await getUserCollection().where('email', isEqualTo: emailAddress).get();
-
-    if (phoneQuery.docs.isNotEmpty) {
-      return true;
-    }
-    return false;
+    final phoneQuery = await getUserCollection().where('email', isEqualTo: emailAddress).get();
+    return phoneQuery.docs.isNotEmpty;
   }
 
-  static Future<void> registerWithEmailAndPassword(
-      {required String emailAddress,
-        required String password,
-        required String userName,
-        required String phoneNumber,
-        required context}) async {
+  static Future<void> registerWithEmailAndPassword({
+    required String emailAddress,
+    required String password,
+    required String userName,
+    required String phoneNumber,
+    required context,
+  }) async {
     if (await checkExistingPhoneNumber(phoneNumber, context) == true) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -87,7 +443,6 @@ class FirebaseAuthService extends ChangeNotifier{
         ),
       );
     } else {
-      // Show loading alert
       QuickAlert.show(
         context: context,
         type: QuickAlertType.loading,
@@ -96,72 +451,54 @@ class FirebaseAuthService extends ChangeNotifier{
       );
       try {
         final UserCredential credential =
-        await auth.createUserWithEmailAndPassword(
-          email: emailAddress,
-          password: password,
-        );
+        await auth.createUserWithEmailAndPassword(email: emailAddress, password: password);
         final token = await FirebaseMessaging.instance.getToken();
         MyUser myUser = MyUser(
-            uId: credential.user?.uid ?? "",
-            name: userName,
-            email: emailAddress,
-            phoneNumber: phoneNumber,
-        fcmToken: token,
+          uId: credential.user?.uid ?? "",
+          name: userName,
+          email: emailAddress,
+          phoneNumber: phoneNumber,
+          fcmToken: token,
         );
-        addUserToFireCloud(myUser);
+        await addUserToFireCloud(myUser);
 
-
-        // Dismiss loading alert
         Navigator.pop(context);
 
-        // Show success alert with timer
         QuickAlert.show(
           context: context,
           type: QuickAlertType.success,
           title: 'Registration Successful',
           text: 'Account created successfully!',
-          showCancelBtn: false, // No Cancel button
+          showCancelBtn: false,
           showConfirmBtn: false,
-          autoCloseDuration:
-          Duration(seconds: 3), // Automatically close after 3 seconds
+          autoCloseDuration: Duration(seconds: 3),
         );
 
-        // Navigate to LoginScreen after the timer
+         CallService.onUserLogin(id: myUser.uId, name: myUser.name);
+
         Future.delayed(Duration(seconds: 3), () {
-          Navigator.pushReplacementNamed(context, LoginScreen.routeName);
+          Navigator.pushReplacementNamed(context, Translation.routeName);
         });
         print('User registered: ${credential.user?.email}');
       } on FirebaseAuthException catch (e) {
-        // Dismiss loading alert
         Navigator.pop(context);
-        if (e.code == 'weak-password') {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text('The password provided is too weak.'),
-            backgroundColor: Colors.red,
-          ));
-        } else if (e.code ==
-            'The email address is already in use by another account') {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text('The account already exists for that email.'),
-            backgroundColor: Colors.red,
-          ));
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(' ${e.message}'),
-            backgroundColor: Colors.red,
-          ));
-        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${e.message}'), backgroundColor: Colors.red),
+        );
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Error: $e'),
-          backgroundColor: Colors.red,
-        ));
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+        );
       }
     }
   }
 
-  static Future<void> loginWithEmailAndPassword(
-      {required emailAddress, required password, required context}) async {
+  static Future<void> loginWithEmailAndPassword({
+    required emailAddress,
+    required password,
+    required context,
+  }) async {
     QuickAlert.show(
       context: context,
       type: QuickAlertType.loading,
@@ -169,14 +506,21 @@ class FirebaseAuthService extends ChangeNotifier{
       text: 'Please wait...',
     );
     try {
-      final credential = await FirebaseAuth.instance
-          .signInWithEmailAndPassword(email: emailAddress, password: password);
+      final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: emailAddress,
+        password: password,
+      );
       await saveFCMToken(credential.user!.uid);
       setupFCMTokenListener(credential.user!.uid);
 
+       CallService.onUserLogin(
+        id: credential.user!.uid,
+        name: credential.user!.displayName ?? 'Anonymous',
+      );
+
       QuickAlert.show(
         context: context,
-        showCancelBtn: false, // No Cancel button
+        showCancelBtn: false,
         showConfirmBtn: false,
         type: QuickAlertType.success,
         title: 'Sign-In Successful',
@@ -184,7 +528,6 @@ class FirebaseAuthService extends ChangeNotifier{
         autoCloseDuration: Duration(seconds: 3),
       );
 
-      // Navigate to LoginScreen after the timer
       Future.delayed(Duration(seconds: 3), () {
         Navigator.pushReplacementNamed(context, Translation.routeName);
       });
@@ -204,7 +547,6 @@ class FirebaseAuthService extends ChangeNotifier{
     String? PhoneNumber,
     String? email,
   }) async {
-    // Show loading alert
     QuickAlert.show(
       context: context,
       type: QuickAlertType.loading,
@@ -213,14 +555,9 @@ class FirebaseAuthService extends ChangeNotifier{
     );
 
     try {
-      // Trigger the authentication flow
       final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-
-
-
-      // If user cancels the sign-in process
       if (googleUser == null) {
-        Navigator.pop(context); // Dismiss loading alert
+        Navigator.pop(context);
         QuickAlert.show(
           context: context,
           type: QuickAlertType.error,
@@ -230,26 +567,22 @@ class FirebaseAuthService extends ChangeNotifier{
         return;
       }
 
-      // Obtain the auth details from the request
-      final GoogleSignInAuthentication? googleAuth =
-      await googleUser.authentication;
-
-      // Dismiss loading alert
+      final GoogleSignInAuthentication? googleAuth = await googleUser.authentication;
       Navigator.pop(context);
 
-      // Check if the email exists in your system
       if (await checkExistingEmail(googleUser.email, context) == true) {
-        // Create a new credential
         final credential = GoogleAuthProvider.credential(
           accessToken: googleAuth?.accessToken,
           idToken: googleAuth?.idToken,
         );
 
-        // Sign in with Firebase
         await auth.signInWithCredential(credential);
 
+         CallService.onUserLogin(
+          id: FirebaseAuth.instance.currentUser!.uid,
+          name: googleUser.displayName ?? 'Anonymous',
+        );
 
-        // Show success alert
         QuickAlert.show(
           context: context,
           type: QuickAlertType.success,
@@ -260,63 +593,51 @@ class FirebaseAuthService extends ChangeNotifier{
           autoCloseDuration: Duration(seconds: 2),
         );
 
-        // Navigate to HomePage after the timer
         Future.delayed(Duration(seconds: 3), () {
           Navigator.pushReplacementNamed(context, Translation.routeName);
         });
       } else {
-        // Navigate to PhoneNumberScreen
         final token = await FirebaseMessaging.instance.getToken();
-        Navigator.pushNamed(context, PhoneNumberScreen.routeName,
-            arguments: {"googleUser": googleUser, "token": token});
-
-
+        Navigator.pushNamed(context, PhoneNumberScreen.routeName, arguments: {
+          "googleUser": googleUser,
+          "token": token,
+        });
       }
     } catch (e) {
-      Navigator.pop(context); // Dismiss loading alert
-
-      // Show error message using SnackBar
+      Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Invalid login attempt: $e'),
-          backgroundColor: Colors.red,
-        ),
+        SnackBar(content: Text('Invalid login attempt: $e'), backgroundColor: Colors.red),
       );
     }
   }
-
-
-
-
 
   static checkSignInState() {
     User? user = auth.currentUser;
     if (user != null) {
       print("User is already signed in.${user.uid}");
-
-      return Translation
-          .routeName; // Replace '/home' with your home screen route
+      return Translation.routeName;
     } else {
       return RegisterScreen.routeName;
     }
   }
-   Future<void> signOut(BuildContext context) async {
+
+  Future<void> signOut(BuildContext context) async {
     try {
       await GoogleSignIn().signOut();
       await auth.signOut();
-      // CallService.onUserLogout();
+       CallService.onUserLogout();
 
-      myUser = null; // ✅ Clear user data after logout
+      myUser = null;
       notifyListeners();
       Navigator.of(context).pushNamedAndRemoveUntil(
         LoginScreen.routeName,
             (route) => false,
       );
-
     } catch (e) {
       print('Error signing out: $e');
     }
   }
+
   getUserProfileInfo() async {
     User? user = auth.currentUser;
     if (user == null) {
@@ -326,7 +647,6 @@ class FirebaseAuthService extends ChangeNotifier{
     var doc = await getUserCollection().doc(user.uid).get();
     myUser = doc.data();
     notifyListeners();
-
   }
 
   Future<void> updateUserProfileInfo({String? newName}) async {
@@ -335,23 +655,13 @@ class FirebaseAuthService extends ChangeNotifier{
       print("No user is signed in.");
       return;
     }
-    // await user.updatePhotoURL(image??"");
-    // Retrieve the current FCM token
     final currentUserDoc = await getUserCollection().doc(user.uid).get();
     final currentFCMToken = currentUserDoc.data()?.fcmToken;
 
-    await getUserCollection().doc(user.uid).update(
-        {
-          'name': newName,
-          'fcmToken':currentFCMToken
-        }
-    );
+    await getUserCollection().doc(user.uid).update({
+      'name': newName,
+      'fcmToken': currentFCMToken,
+    });
     notifyListeners();
   }
-
-
-
-
-
-
 }

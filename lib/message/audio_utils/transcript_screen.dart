@@ -1,5 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:hands_talks/services/Speech_to_text.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart';
+import 'dart:io';
+
+Future<String> sendAudioFileToFlask(String audioUrl) async {
+  // 1. نزلي الملف من الإنترنت
+  final response = await http.get(Uri.parse(audioUrl));
+  if (response.statusCode != 200) {
+    throw Exception('فشل تحميل الملف من الإنترنت: ${response.statusCode}');
+  }
+
+  // 2. احفظيه في ملف مؤقت
+  final tempDir = await getTemporaryDirectory();
+  final tempFilePath = join(tempDir.path, 'temp_audio.m4a');
+  final tempFile = File(tempFilePath);
+  await tempFile.writeAsBytes(response.bodyBytes);
+
+  // 3. ابعتيه كـ Multipart
+  var uri = Uri.parse('http://192.168.1.3:5000/transcribe-file');
+  var request = http.MultipartRequest('POST', uri);
+  request.files.add(await http.MultipartFile.fromPath('file', tempFile.path));
+
+  var streamedResponse = await request.send();
+  var responseText = await http.Response.fromStream(streamedResponse);
+
+  if (responseText.statusCode == 200) {
+    return responseText.body;
+  } else {
+    throw Exception('فشل في التفريغ: ${responseText.body}');
+  }
+}
 
 class TranscribeScreen extends StatefulWidget {
   String audioUrl;
@@ -17,7 +50,8 @@ class _TranscribeScreenState extends State<TranscribeScreen> {
   Future<void> handleTranscribe() async {
     setState(() => isLoading = true);
 
-    final result = await WhisperTranscriber.transcribeFromFirebaseUrl(widget.audioUrl);
+    final result = await sendAudioFileToFlask(widget.audioUrl);
+
 
     setState(() {
       transcription = result;
@@ -61,3 +95,51 @@ class _TranscribeScreenState extends State<TranscribeScreen> {
     );
   }
 }
+
+
+
+//
+// Future<String> sendAudioFileToFlask(String audioUrl) async {
+//   // 1. نزلي الملف من الإنترنت
+//   final response = await http.get(Uri.parse(audioUrl));
+//   if (response.statusCode != 200) {
+//     throw Exception('فشل تحميل الملف من الإنترنت: ${response.statusCode}');
+//   }
+//
+//   // 2. احفظيه في ملف مؤقت
+//   final tempDir = await getTemporaryDirectory();
+//   final tempFilePath = join(tempDir.path, 'temp_audio.m4a');
+//   final tempFile = File(tempFilePath);
+//   await tempFile.writeAsBytes(response.bodyBytes);
+//
+//   // 3. ابعتيه كـ Multipart
+//   var uri = Uri.parse('http://192.168.1.3:5000/transcribe-file');
+//   var request = http.MultipartRequest('POST', uri);
+//   request.files.add(await http.MultipartFile.fromPath('file', tempFile.path));
+//
+//   var streamedResponse = await request.send();
+//   var responseText = await http.Response.fromStream(streamedResponse);
+//
+//   if (responseText.statusCode == 200) {
+//     return responseText.body;
+//   } else {
+//     throw Exception('فشل في التفريغ: ${responseText.body}');
+//   }
+// }
+
+
+
+// Future<String> sendToAssembly(String audioUrl) async {
+//   final response = await http.post(
+//     Uri.parse("http://192.168.1.3:5000/transcribe"),
+//     headers: {"Content-Type": "application/json"},
+//     body: jsonEncode({"url": audioUrl}),
+//   );
+//
+//   if (response.statusCode == 200) {
+//     final json = jsonDecode(response.body);
+//     return json['text'];
+//   } else {
+//     throw Exception("فشل التفريغ: ${response.body}");
+//   }
+// }

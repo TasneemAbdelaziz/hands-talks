@@ -268,7 +268,7 @@ class _SignToTextProcessingState extends State<SignToTextProcessing>
                       thickness: 6,
                       color: Colors.white,
                       height: 12.h,
-                      radius: BorderRadius.circular(25),
+                      // radius: BorderRadius.circular(25),
                     ),
                   ),
                   SizedBox(
